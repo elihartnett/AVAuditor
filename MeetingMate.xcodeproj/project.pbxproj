@@ -7,19 +7,31 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		62EBF7B129EB90A9001F906E /* MeetingMateApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62EBF7B029EB90A9001F906E /* MeetingMateApp.swift */; };
-		62EBF7B329EB90A9001F906E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62EBF7B229EB90A9001F906E /* ContentView.swift */; };
+		62EBF7B129EB90A9001F906E /* MeetingMate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62EBF7B029EB90A9001F906E /* MeetingMate.swift */; };
+		62EBF7B329EB90A9001F906E /* Home.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62EBF7B229EB90A9001F906E /* Home.swift */; };
 		62EBF7B529EB90AA001F906E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 62EBF7B429EB90AA001F906E /* Assets.xcassets */; };
 		62EBF7B829EB90AA001F906E /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 62EBF7B729EB90AA001F906E /* Preview Assets.xcassets */; };
+		62EBF7C429EC7CAE001F906E /* VideoInputPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62EBF7C329EC7CAE001F906E /* VideoInputPreview.swift */; };
+		62EBF7C629EC824F001F906E /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62EBF7C529EC824F001F906E /* AudioManager.swift */; };
+		62EBF7C829EC88F9001F906E /* MeetingMateModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62EBF7C729EC88F9001F906E /* MeetingMateModel.swift */; };
+		62EE720629EC966A00EE629F /* VideoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62EE720529EC966A00EE629F /* VideoView.swift */; };
+		62EE720829EC967200EE629F /* AudioView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62EE720729EC967200EE629F /* AudioView.swift */; };
+		62EE720A29EC9F1C00EE629F /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62EE720929EC9F1C00EE629F /* Constants.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		62EBF7AD29EB90A9001F906E /* MeetingMate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MeetingMate.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		62EBF7B029EB90A9001F906E /* MeetingMateApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingMateApp.swift; sourceTree = "<group>"; };
-		62EBF7B229EB90A9001F906E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		62EBF7B029EB90A9001F906E /* MeetingMate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingMate.swift; sourceTree = "<group>"; };
+		62EBF7B229EB90A9001F906E /* Home.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Home.swift; sourceTree = "<group>"; };
 		62EBF7B429EB90AA001F906E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		62EBF7B729EB90AA001F906E /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		62EBF7B929EB90AA001F906E /* MeetingMate.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MeetingMate.entitlements; sourceTree = "<group>"; };
+		62EBF7C329EC7CAE001F906E /* VideoInputPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoInputPreview.swift; sourceTree = "<group>"; };
+		62EBF7C529EC824F001F906E /* AudioManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioManager.swift; sourceTree = "<group>"; };
+		62EBF7C729EC88F9001F906E /* MeetingMateModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingMateModel.swift; sourceTree = "<group>"; };
+		62EE720529EC966A00EE629F /* VideoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoView.swift; sourceTree = "<group>"; };
+		62EE720729EC967200EE629F /* AudioView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioView.swift; sourceTree = "<group>"; };
+		62EE720929EC9F1C00EE629F /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -52,8 +64,10 @@
 		62EBF7AF29EB90A9001F906E /* MeetingMate */ = {
 			isa = PBXGroup;
 			children = (
-				62EBF7B029EB90A9001F906E /* MeetingMateApp.swift */,
-				62EBF7B229EB90A9001F906E /* ContentView.swift */,
+				62EBF7B029EB90A9001F906E /* MeetingMate.swift */,
+				62EBF7BF29EB92B4001F906E /* Views */,
+				62EBF7C029EB92BA001F906E /* View Models */,
+				62EBF7C229EB92D5001F906E /* Helpers */,
 				62EBF7B429EB90AA001F906E /* Assets.xcassets */,
 				62EBF7B929EB90AA001F906E /* MeetingMate.entitlements */,
 				62EBF7B629EB90AA001F906E /* Preview Content */,
@@ -67,6 +81,34 @@
 				62EBF7B729EB90AA001F906E /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		62EBF7BF29EB92B4001F906E /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				62EBF7B229EB90A9001F906E /* Home.swift */,
+				62EE720529EC966A00EE629F /* VideoView.swift */,
+				62EE720729EC967200EE629F /* AudioView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		62EBF7C029EB92BA001F906E /* View Models */ = {
+			isa = PBXGroup;
+			children = (
+				62EBF7C729EC88F9001F906E /* MeetingMateModel.swift */,
+				62EBF7C529EC824F001F906E /* AudioManager.swift */,
+			);
+			path = "View Models";
+			sourceTree = "<group>";
+		};
+		62EBF7C229EB92D5001F906E /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				62EBF7C329EC7CAE001F906E /* VideoInputPreview.swift */,
+				62EE720929EC9F1C00EE629F /* Constants.swift */,
+			);
+			path = Helpers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -139,8 +181,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				62EBF7B329EB90A9001F906E /* ContentView.swift in Sources */,
-				62EBF7B129EB90A9001F906E /* MeetingMateApp.swift in Sources */,
+				62EE720629EC966A00EE629F /* VideoView.swift in Sources */,
+				62EBF7C829EC88F9001F906E /* MeetingMateModel.swift in Sources */,
+				62EBF7C429EC7CAE001F906E /* VideoInputPreview.swift in Sources */,
+				62EBF7B329EB90A9001F906E /* Home.swift in Sources */,
+				62EBF7C629EC824F001F906E /* AudioManager.swift in Sources */,
+				62EBF7B129EB90A9001F906E /* MeetingMate.swift in Sources */,
+				62EE720829EC967200EE629F /* AudioView.swift in Sources */,
+				62EE720A29EC9F1C00EE629F /* Constants.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -274,7 +322,9 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Please grant $(PRODUCT_NAME) access to your camera";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Please grant $(PRODUCT_NAME) access to your microphone";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -301,7 +351,9 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Please grant $(PRODUCT_NAME) access to your camera";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Please grant $(PRODUCT_NAME) access to your microphone";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
