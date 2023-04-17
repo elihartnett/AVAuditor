@@ -16,6 +16,7 @@ struct AudioView: View {
         VStack {
             
             Picker("Audio Input", selection: $meetingMateModel.selectedAudioInputDeviceID) {
+                
                 Text(Constants.none)
                     .tag(Constants.none)
                 
@@ -29,8 +30,8 @@ struct AudioView: View {
             }
             
             if meetingMateModel.selectedAudioInputDevice != nil {
-                Text("Audio bar")
-                    .frame(width: 300, height: 300)
+                AudioMeter(audioManager: meetingMateModel.audioManager)
+                .frame(width: 300, height: 20)
             }
         }
     }
@@ -41,3 +42,5 @@ struct AudioView_Previews: PreviewProvider {
         AudioView()
     }
 }
+
+

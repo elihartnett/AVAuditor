@@ -45,7 +45,8 @@ class MeetingMateModel: ObservableObject {
         if selectedVideoInputDevice != nil {
             if AVCaptureDevice.authorizationStatus(for: .video) ==  .authorized {
                 setupVideoCaptureSession()
-            } else {
+            }
+            else {
                 AVCaptureDevice.requestAccess(for: .video, completionHandler: { granted in
                     if granted {
                         print("access allowed")
@@ -64,19 +65,27 @@ class MeetingMateModel: ObservableObject {
     }
     
     func setSelectedAudioInputDevice() {
-        if AVCaptureDevice.authorizationStatus(for: .audio) ==  .authorized {
-            selectedAudioInputDevice = audioInputOptions.first { $0.uniqueID == selectedAudioInputDeviceID }
+        selectedAudioInputDevice = audioInputOptions.first { $0.uniqueID == selectedAudioInputDeviceID }
+        
+        if selectedAudioInputDevice != nil {
+            if AVCaptureDevice.authorizationStatus(for: .audio) ==  .authorized {
+                audioManager.captureDevice = selectedAudioInputDevice
+                audioManager.start()
+            }
+            else {
+                AVCaptureDevice.requestAccess(for: .audio, completionHandler: { granted in
+                    if granted {
+                        print("access allowed")
+                    } else {
+                        print("access denied")
+                        self.selectedAudioInputDeviceID = ""
+                        self.selectedAudioInputDevice = nil
+                    }
+                })
+            }
         }
         else {
-            AVCaptureDevice.requestAccess(for: .audio, completionHandler: { granted in
-                if granted {
-                    print("access allowed")
-                } else {
-                    print("access denied")
-                    self.selectedAudioInputDeviceID = ""
-                    self.selectedAudioInputDevice = nil
-                }
-            })
+            audioManager.stop()
         }
     }
     

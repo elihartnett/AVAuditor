@@ -17,6 +17,7 @@
 		62EE720629EC966A00EE629F /* VideoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62EE720529EC966A00EE629F /* VideoView.swift */; };
 		62EE720829EC967200EE629F /* AudioView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62EE720729EC967200EE629F /* AudioView.swift */; };
 		62EE720A29EC9F1C00EE629F /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62EE720929EC9F1C00EE629F /* Constants.swift */; };
+		62EE720C29ECD88F00EE629F /* AudioMeter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62EE720B29ECD88F00EE629F /* AudioMeter.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +33,7 @@
 		62EE720529EC966A00EE629F /* VideoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoView.swift; sourceTree = "<group>"; };
 		62EE720729EC967200EE629F /* AudioView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioView.swift; sourceTree = "<group>"; };
 		62EE720929EC9F1C00EE629F /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		62EE720B29ECD88F00EE629F /* AudioMeter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioMeter.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -89,6 +91,8 @@
 				62EBF7B229EB90A9001F906E /* Home.swift */,
 				62EE720529EC966A00EE629F /* VideoView.swift */,
 				62EE720729EC967200EE629F /* AudioView.swift */,
+				62EBF7C329EC7CAE001F906E /* VideoInputPreview.swift */,
+				62EE720B29ECD88F00EE629F /* AudioMeter.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -105,7 +109,6 @@
 		62EBF7C229EB92D5001F906E /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
-				62EBF7C329EC7CAE001F906E /* VideoInputPreview.swift */,
 				62EE720929EC9F1C00EE629F /* Constants.swift */,
 			);
 			path = Helpers;
@@ -189,6 +192,7 @@
 				62EBF7B129EB90A9001F906E /* MeetingMate.swift in Sources */,
 				62EE720829EC967200EE629F /* AudioView.swift in Sources */,
 				62EE720A29EC9F1C00EE629F /* Constants.swift in Sources */,
+				62EE720C29ECD88F00EE629F /* AudioMeter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
