@@ -9,19 +9,46 @@ import Foundation
 import AVKit
 
 class AudioManager: NSObject, ObservableObject, AVCaptureAudioDataOutputSampleBufferDelegate {
-    @Published var audioLevel: Float = 0.0
+    
+    @Published var selectedAudioInputDeviceID = Constants.none
+    @Published var selectedAudioInputDevice: AVCaptureDevice?
+    var audioInputOptions: [AVCaptureDevice]?
+    @Published var detectedAudioLevel: Float = 0.0
     
     var captureDevice: AVCaptureDevice? = nil
     var captureSession: AVCaptureSession? = nil
     
     var audioEngine: AVAudioEngine? = nil
     var playerNode: AVAudioPlayerNode? = nil
+    var mainMixerNode: AVAudioMixerNode? = nil
     
-    override init() {
-        super.init()
+    func setSelectedAudioInputDevice(mute: Bool) {
+        selectedAudioInputDevice = audioInputOptions?.first { $0.uniqueID == selectedAudioInputDeviceID }
+        
+        if selectedAudioInputDevice != nil {
+            if AVCaptureDevice.authorizationStatus(for: .audio) ==  .authorized {
+                captureDevice = selectedAudioInputDevice
+                start(mute: mute)
+            }
+            else {
+                AVCaptureDevice.requestAccess(for: .audio, completionHandler: { granted in
+                    if granted {
+                        print("access allowed")
+                    } else {
+                        print("access denied")
+                        self.selectedAudioInputDeviceID = ""
+                        self.selectedAudioInputDevice = nil
+                    }
+                })
+            }
+        }
+        else {
+            stop()
+        }
     }
     
-    func start() {
+    // live playback not changing to new mic
+    func start(mute: Bool) {
         audioEngine = AVAudioEngine()
         playerNode = AVAudioPlayerNode()
         
@@ -30,7 +57,14 @@ class AudioManager: NSObject, ObservableObject, AVCaptureAudioDataOutputSampleBu
 
         let inputNode = audioEngine.inputNode
         let inputFormat = inputNode.inputFormat(forBus: 0)
-        let mainMixerNode = audioEngine.mainMixerNode
+        mainMixerNode = audioEngine.mainMixerNode
+        guard let mainMixerNode = mainMixerNode else { return }
+        if mute {
+            self.mute()
+        }
+        else {
+            unmute()
+        }
         
         audioEngine.attach(playerNode)
         audioEngine.connect(playerNode, to: mainMixerNode, format: inputFormat)
@@ -48,15 +82,20 @@ class AudioManager: NSObject, ObservableObject, AVCaptureAudioDataOutputSampleBu
     }
     
     func stop() {
-        guard let audioEngine = audioEngine else { return }
-        guard let playerNode = playerNode else { return }
-        
-        playerNode.stop()
-        audioEngine.stop()
-        audioEngine.reset()
+        playerNode?.stop()
+        audioEngine?.stop()
+        audioEngine?.reset()
         
         self.audioEngine = nil
         self.playerNode = nil
+    }
+    
+    func mute() {
+        mainMixerNode?.outputVolume = 0
+    }
+    
+    func unmute() {
+        mainMixerNode?.outputVolume = 1
     }
     
     // Live preview
@@ -95,7 +134,7 @@ class AudioManager: NSObject, ObservableObject, AVCaptureAudioDataOutputSampleBu
         let audioChannel = connection.audioChannels.first
         if let level = audioChannel?.averagePowerLevel {
             DispatchQueue.main.async {
-                self.audioLevel = level
+                self.detectedAudioLevel = level
             }
         }
     }

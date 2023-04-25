@@ -9,24 +9,18 @@ import Foundation
 import AVKit
 
 class MeetingMateModel: ObservableObject {
-    
-    @Published var audioManager = AudioManager()
-    
-    // Video input
-    @Published var selectedVideoInputDeviceID = Constants.none
-    @Published var selectedVideoInputDevice: AVCaptureDevice?
-    var videoInputOptions: [AVCaptureDevice] {
-        getAvailableDevices(mediaType: .video)
-    }
-    @Published var videoCaptureSession: AVCaptureSession?
-    
-    // Audio input
-    @Published var selectedAudioInputDeviceID = Constants.none
-    @Published var selectedAudioInputDevice: AVCaptureDevice?
-    var audioInputOptions: [AVCaptureDevice] {
-        getAvailableDevices(mediaType: .audio)
-    }
         
+    @Published var videoManager: VideoManager
+    
+    @Published var audioManager: AudioManager
+    
+    init() {
+        self.videoManager = VideoManager()
+        self.audioManager = AudioManager()
+        
+        videoManager.videoInputOptions = getAvailableDevices(mediaType: .video)
+        audioManager.audioInputOptions = getAvailableDevices(mediaType: .audio)
+    }
     
     // Functions
     func getAvailableDevices(mediaType: AVMediaType) -> [AVCaptureDevice] {
@@ -37,77 +31,6 @@ class MeetingMateModel: ObservableObject {
         let devices = discoverySession.devices
         
         return devices
-    }
-    
-    func setSelectedVideoInputDevice() {
-        selectedVideoInputDevice = videoInputOptions.first { $0.uniqueID == selectedVideoInputDeviceID }
-        
-        if selectedVideoInputDevice != nil {
-            if AVCaptureDevice.authorizationStatus(for: .video) ==  .authorized {
-                setupVideoCaptureSession()
-            }
-            else {
-                AVCaptureDevice.requestAccess(for: .video, completionHandler: { granted in
-                    if granted {
-                        print("access allowed")
-                    } else {
-                        print("access denied")
-                        self.selectedVideoInputDeviceID = ""
-                        self.selectedVideoInputDevice = nil
-                    }
-                })
-            }
-        }
-        else {
-            videoCaptureSession?.stopRunning()
-            videoCaptureSession = nil
-        }
-    }
-    
-    func setSelectedAudioInputDevice() {
-        selectedAudioInputDevice = audioInputOptions.first { $0.uniqueID == selectedAudioInputDeviceID }
-        
-        if selectedAudioInputDevice != nil {
-            if AVCaptureDevice.authorizationStatus(for: .audio) ==  .authorized {
-                audioManager.captureDevice = selectedAudioInputDevice
-                audioManager.start()
-            }
-            else {
-                AVCaptureDevice.requestAccess(for: .audio, completionHandler: { granted in
-                    if granted {
-                        print("access allowed")
-                    } else {
-                        print("access denied")
-                        self.selectedAudioInputDeviceID = ""
-                        self.selectedAudioInputDevice = nil
-                    }
-                })
-            }
-        }
-        else {
-            audioManager.stop()
-        }
-    }
-    
-    func setupVideoCaptureSession() {
-        DispatchQueue.global(qos: .userInitiated).async { [self] in
-            let captureSession = AVCaptureSession()
-            
-            guard let videoDevice = selectedVideoInputDevice, let videoInput = try? AVCaptureDeviceInput(device: videoDevice) else {
-                return
-            }
-            
-            captureSession.addInput(videoInput)
-            
-            let videoOutput = AVCaptureVideoDataOutput()
-            captureSession.addOutput(videoOutput)
-            
-            captureSession.startRunning()
-            
-            DispatchQueue.main.async {
-                self.videoCaptureSession = captureSession
-            }
-        }
     }
 }
 

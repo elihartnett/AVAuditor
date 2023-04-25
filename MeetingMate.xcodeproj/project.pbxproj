@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		620EB83829F41FBC00745221 /* MeetingMateIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = 620EB83529F41FBC00745221 /* MeetingMateIcon.png */; };
+		620EB83929F41FBC00745221 /* MeetingMateIcon.vectornator in Resources */ = {isa = PBXBuildFile; fileRef = 620EB83629F41FBC00745221 /* MeetingMateIcon.vectornator */; };
+		620EB83A29F41FBC00745221 /* MeetingMateIconWBG.png in Resources */ = {isa = PBXBuildFile; fileRef = 620EB83729F41FBC00745221 /* MeetingMateIconWBG.png */; };
+		620EB83C29F7515100745221 /* VideoManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 620EB83B29F7515100745221 /* VideoManager.swift */; };
 		62EBF7B129EB90A9001F906E /* MeetingMate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62EBF7B029EB90A9001F906E /* MeetingMate.swift */; };
 		62EBF7B329EB90A9001F906E /* Home.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62EBF7B229EB90A9001F906E /* Home.swift */; };
 		62EBF7B529EB90AA001F906E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 62EBF7B429EB90AA001F906E /* Assets.xcassets */; };
@@ -21,6 +25,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		620EB83529F41FBC00745221 /* MeetingMateIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MeetingMateIcon.png; sourceTree = "<group>"; };
+		620EB83629F41FBC00745221 /* MeetingMateIcon.vectornator */ = {isa = PBXFileReference; lastKnownFileType = file; path = MeetingMateIcon.vectornator; sourceTree = "<group>"; };
+		620EB83729F41FBC00745221 /* MeetingMateIconWBG.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MeetingMateIconWBG.png; sourceTree = "<group>"; };
+		620EB83B29F7515100745221 /* VideoManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoManager.swift; sourceTree = "<group>"; };
 		62EBF7AD29EB90A9001F906E /* MeetingMate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MeetingMate.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		62EBF7B029EB90A9001F906E /* MeetingMate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingMate.swift; sourceTree = "<group>"; };
 		62EBF7B229EB90A9001F906E /* Home.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Home.swift; sourceTree = "<group>"; };
@@ -47,6 +55,34 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		620EB83429F41FB200745221 /* File Assets */ = {
+			isa = PBXGroup;
+			children = (
+				620EB83529F41FBC00745221 /* MeetingMateIcon.png */,
+				620EB83629F41FBC00745221 /* MeetingMateIcon.vectornator */,
+				620EB83729F41FBC00745221 /* MeetingMateIconWBG.png */,
+			);
+			path = "File Assets";
+			sourceTree = "<group>";
+		};
+		620EB83D29F754CD00745221 /* Video */ = {
+			isa = PBXGroup;
+			children = (
+				62EE720529EC966A00EE629F /* VideoView.swift */,
+				62EBF7C329EC7CAE001F906E /* VideoInputPreview.swift */,
+			);
+			path = Video;
+			sourceTree = "<group>";
+		};
+		620EB83E29F754D800745221 /* Audio */ = {
+			isa = PBXGroup;
+			children = (
+				62EE720729EC967200EE629F /* AudioView.swift */,
+				62EE720B29ECD88F00EE629F /* AudioMeter.swift */,
+			);
+			path = Audio;
+			sourceTree = "<group>";
+		};
 		62EBF7A429EB90A9001F906E = {
 			isa = PBXGroup;
 			children = (
@@ -89,10 +125,8 @@
 			isa = PBXGroup;
 			children = (
 				62EBF7B229EB90A9001F906E /* Home.swift */,
-				62EE720529EC966A00EE629F /* VideoView.swift */,
-				62EE720729EC967200EE629F /* AudioView.swift */,
-				62EBF7C329EC7CAE001F906E /* VideoInputPreview.swift */,
-				62EE720B29ECD88F00EE629F /* AudioMeter.swift */,
+				620EB83D29F754CD00745221 /* Video */,
+				620EB83E29F754D800745221 /* Audio */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -101,6 +135,7 @@
 			isa = PBXGroup;
 			children = (
 				62EBF7C729EC88F9001F906E /* MeetingMateModel.swift */,
+				620EB83B29F7515100745221 /* VideoManager.swift */,
 				62EBF7C529EC824F001F906E /* AudioManager.swift */,
 			);
 			path = "View Models";
@@ -110,6 +145,7 @@
 			isa = PBXGroup;
 			children = (
 				62EE720929EC9F1C00EE629F /* Constants.swift */,
+				620EB83429F41FB200745221 /* File Assets */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -173,7 +209,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				62EBF7B829EB90AA001F906E /* Preview Assets.xcassets in Resources */,
+				620EB83A29F41FBC00745221 /* MeetingMateIconWBG.png in Resources */,
+				620EB83929F41FBC00745221 /* MeetingMateIcon.vectornator in Resources */,
 				62EBF7B529EB90AA001F906E /* Assets.xcassets in Resources */,
+				620EB83829F41FBC00745221 /* MeetingMateIcon.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -191,6 +230,7 @@
 				62EBF7C629EC824F001F906E /* AudioManager.swift in Sources */,
 				62EBF7B129EB90A9001F906E /* MeetingMate.swift in Sources */,
 				62EE720829EC967200EE629F /* AudioView.swift in Sources */,
+				620EB83C29F7515100745221 /* VideoManager.swift in Sources */,
 				62EE720A29EC9F1C00EE629F /* Constants.swift in Sources */,
 				62EE720C29ECD88F00EE629F /* AudioMeter.swift in Sources */,
 			);

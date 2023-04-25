@@ -16,9 +16,9 @@ struct Home: View {
         
         VStack {
             
-            VideoView()
+            VideoView(manager: meetingMateModel.videoManager)
             
-            AudioView()
+            AudioView(manager: meetingMateModel.audioManager)
             
             Divider()
             
