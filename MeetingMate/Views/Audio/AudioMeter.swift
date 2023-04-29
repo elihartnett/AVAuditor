@@ -24,9 +24,6 @@ struct AudioMeter: View {
                     .frame(width: geo.size.width * CGFloat(min(max(0, audioLevel), 1)))
                     .animation(.default, value: audioLevel)
             }
-            .onAppear {
-                audioManager.setupCaptureSession()
-            }
         }
         .frame(height: 20)
     }
