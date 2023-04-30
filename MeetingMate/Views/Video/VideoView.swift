@@ -35,7 +35,7 @@ struct VideoView: View {
                         .controlSize(.large)
                     
                     VideoInputPreview(captureSession: $manager.videoCaptureSession)
-                        .frame(width: 300, height: 200)
+                        .frame(height: 200)
                         .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
                 }
             }

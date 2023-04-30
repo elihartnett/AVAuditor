@@ -14,14 +14,16 @@ struct Home: View {
     
     var body: some View {
         
-        VStack {
+        VStack(spacing: 10) {
             
             VideoView(manager: meetingMateModel.videoManager)
+            
+            Divider()
             
             AudioView(manager: meetingMateModel.audioManager)
             
             Divider()
-            
+                        
             Button("Quit") {
                 
                 NSApplication.shared.terminate(nil)

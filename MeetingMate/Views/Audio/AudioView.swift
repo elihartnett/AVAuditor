@@ -11,12 +11,7 @@ struct AudioView: View {
     
     @ObservedObject var manager: AudioManager
     
-    @State var mute = true {
-        didSet {
-            if mute { manager.muteLivePlayback() }
-            else { manager.unmuteLivePlayback() }
-        }
-    }
+    let height: CGFloat = 20
     
     var body: some View {
         
@@ -33,23 +28,20 @@ struct AudioView: View {
                 }
             }
             .onChange(of: manager.selectedAudioInputDeviceID) { id in
-                manager.setCaptureDevice(mute: mute)
+                manager.setCaptureDevice()
             }
             
             if manager.captureDevice != nil {
                 HStack {
                     AudioMeter(audioManager: manager)
-                    .frame(width: 300, height: 20)
+                        .frame(height: height)
                     
-                    Button {
-                        mute.toggle()
-                    } label: {
-                        Image(systemName: mute ? "speaker.slash" : "speaker")
-                    }
-                    .frame(width: 20, height: 20)
+                    AudioRecorderView(audioManager: manager)
+                        .frame(width: height, height: height)
                 }
             }
         }
+        .onAppear { manager.startAudioManager() }
     }
 }
 

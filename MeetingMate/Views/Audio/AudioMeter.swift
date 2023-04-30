@@ -15,6 +15,7 @@ struct AudioMeter: View {
         
         GeometryReader { geo in
             let audioLevel = CGFloat((audioManager.detectedAudioLevel + 50) / 50)
+            
             ZStack(alignment: .leading) {
                 Rectangle()
                     .fill(.white)

@@ -43,6 +43,7 @@ struct VideoInputPreview: NSViewRepresentable {
 
             let newPreviewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
             newPreviewLayer.frame = viewLayer.frame
+            newPreviewLayer.videoGravity = .resizeAspect
             viewLayer.addSublayer(newPreviewLayer)
 
             previewLayer = newPreviewLayer

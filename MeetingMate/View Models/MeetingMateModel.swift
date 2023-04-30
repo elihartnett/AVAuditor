@@ -9,7 +9,7 @@ import Foundation
 import AVKit
 
 class MeetingMateModel: ObservableObject {
-        
+    
     @Published var videoManager: VideoManager
     
     @Published var audioManager: AudioManager
@@ -22,15 +22,17 @@ class MeetingMateModel: ObservableObject {
         audioManager.audioInputOptions = getAvailableDevices(mediaType: .audio)
     }
     
-    // Functions
     func getAvailableDevices(mediaType: AVMediaType) -> [AVCaptureDevice] {
         let videoDeviceTypes: [AVCaptureDevice.DeviceType] = [.builtInWideAngleCamera, .deskViewCamera, .externalUnknown]
         let audioDeviceTypes: [AVCaptureDevice.DeviceType] = [.builtInMicrophone, .externalUnknown]
         
         let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: mediaType == .video ? videoDeviceTypes : audioDeviceTypes, mediaType: mediaType, position: .unspecified)
         let devices = discoverySession.devices
+        let sortedDevices = devices.sorted { lhs, rhs in
+            lhs.localizedName.localizedCompare(rhs.localizedName) == .orderedAscending
+        }
         
-        return devices
+        return sortedDevices
     }
 }
 
