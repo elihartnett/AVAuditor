@@ -5,32 +5,48 @@
 //  Created by Eli Hartnett on 4/15/23.
 //
 
-import SwiftUI
 import AVKit
+import SwiftUI
 
 struct Home: View {
-    
-    @EnvironmentObject var meetingMateModel: MeetingMateModel
-    
+
+    @EnvironmentObject private var model: MeetingMateModel
+
     var body: some View {
-        
-        VStack(spacing: 10) {
-            
-            VideoView(manager: meetingMateModel.videoManager)
-            
-            Divider()
-            
-            AudioView(manager: meetingMateModel.audioManager)
-            
-            Divider()
-                        
-            Button("Quit") {
-                
-                NSApplication.shared.terminate(nil)
-                
-            }.keyboardShortcut("q")
+
+        NavigationStack {
+
+            VStack(spacing: 10) {
+
+                VideoView(manager: model.videoManager)
+
+                Divider()
+
+                AudioView(manager: model.audioManager)
+
+                Divider()
+
+                HStack {
+                    Text(model.errorMessage)
+                        .opacity(model.showError ? Constants.wholeMultiplier : Constants.zeroMultiplier)
+                        .foregroundColor(.red)
+                        .animation(.default, value: model.showError)
+
+                    Spacer()
+
+                    NavigationLink {
+                        SettingsView()
+                    } label: {
+                        Image(systemName: Constants.settingsIconName)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: Constants.componentDetailHeight, height: Constants.componentDetailHeight)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding()
         }
-        .padding()
     }
 }
 
