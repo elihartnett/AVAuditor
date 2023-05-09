@@ -8,37 +8,42 @@
 import SwiftUI
 
 struct AudioView: View {
-    
+
     @ObservedObject var manager: AudioManager
-    
-    let height: CGFloat = 20
-    
+
     var body: some View {
-        
+
         VStack {
-            
-            Picker("Audio Input", selection: $manager.selectedAudioInputDeviceID) {
-                
+
+            Picker(Constants.audioInput, selection: $manager.selectedAudioInputDeviceID) {
+
                 Text(Constants.none)
                     .tag(Constants.none)
-                
-                ForEach(manager.audioInputOptions ?? [], id: \.self) { audioInputOption in
-                    Text(audioInputOption.localizedName)
-                        .tag(audioInputOption.uniqueID)
+
+                if !manager.permissionDenied {
+                    ForEach(manager.audioInputOptions ?? [], id: \.self) { audioInputOption in
+                        Text(audioInputOption.localizedName)
+                            .tag(audioInputOption.uniqueID)
+                    }
                 }
             }
-            .onChange(of: manager.selectedAudioInputDeviceID) { id in
-                manager.setCaptureDevice()
+            .onChange(of: manager.selectedAudioInputDeviceID) { _ in
+                manager.setSelectedAudioInputDevice()
             }
-            
+
             if manager.captureDevice != nil {
                 HStack {
                     AudioMeter(audioManager: manager)
-                        .frame(height: height)
-                    
+                        .frame(height: Constants.componentDetailHeight)
+
                     AudioRecorderView(audioManager: manager)
-                        .frame(width: height, height: height)
+                        .frame(width: Constants.componentDetailHeight, height: Constants.componentDetailHeight)
                 }
+                .animation(.default, value: manager.selectedAudioInputDeviceID)
+            }
+
+            if manager.permissionDenied {
+                PermissionDeniedView()
             }
         }
         .onAppear { manager.startAudioManager() }
@@ -50,5 +55,3 @@ struct AudioView_Previews: PreviewProvider {
         AudioView(manager: AudioManager())
     }
 }
-
-

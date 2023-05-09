@@ -8,29 +8,29 @@
 import SwiftUI
 
 struct AudioRecorderView: View {
-    
+
     @ObservedObject var audioManager: AudioManager
-    
-    @State var isRecording = false
-    
+
+    @State private var isRecording = false
+
     var body: some View {
-        
+
         GeometryReader { geo in
             let radius = min(geo.size.width, geo.size.height)
-            let lineWidth = radius / 15
-            let gap = 2 * lineWidth
-            
+            let lineWidth = radius * Constants.tenthMultiplier
+            let gap = lineWidth * Constants.doubleMultiplier
+
             ZStack {
-                
-                RoundedRectangle(cornerRadius: isRecording ? radius / 5 : (radius / 2))
+
+                RoundedRectangle(cornerRadius: isRecording ? radius * Constants.fifthMultiplier : (radius * Constants.halfMultiplier))
                     .fill(.red)
                     .frame(width: radius - gap, height: radius - gap)
-                    .scaleEffect(isRecording ? 0.5 : 1)
-                
+                    .scaleEffect(isRecording ? Constants.halfMultiplier : Constants.wholeMultiplier)
+
                 Circle()
                     .stroke(.gray, lineWidth: lineWidth)
                     .frame(width: radius, height: radius)
-                    .padding(lineWidth / 2)
+                    .padding(lineWidth * Constants.tenthMultiplier)
             }
         }
         .onTapGesture {
@@ -39,10 +39,8 @@ struct AudioRecorderView: View {
             }
             if isRecording {
                 audioManager.startRecording()
-            }
-            else {
+            } else {
                 audioManager.stopRecording()
-                audioManager.playRecording()
             }
         }
     }
