@@ -12,6 +12,10 @@
 		620EB83929F41FBC00745221 /* MeetingMateIcon.vectornator in Resources */ = {isa = PBXBuildFile; fileRef = 620EB83629F41FBC00745221 /* MeetingMateIcon.vectornator */; };
 		620EB83A29F41FBC00745221 /* MeetingMateIconWBG.png in Resources */ = {isa = PBXBuildFile; fileRef = 620EB83729F41FBC00745221 /* MeetingMateIconWBG.png */; };
 		620EB83C29F7515100745221 /* VideoManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 620EB83B29F7515100745221 /* VideoManager.swift */; };
+		62DB82232A0681C200F5EE5D /* Errorable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62DB82222A0681C200F5EE5D /* Errorable.swift */; };
+		62DB82252A068BFC00F5EE5D /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62DB82242A068BFC00F5EE5D /* SettingsView.swift */; };
+		62DB82272A06916200F5EE5D /* PermissionDeniedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62DB82262A06916200F5EE5D /* PermissionDeniedView.swift */; };
+		62DB822A2A07104100F5EE5D /* Ext+Bundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62DB82292A07104100F5EE5D /* Ext+Bundle.swift */; };
 		62EBF7B129EB90A9001F906E /* MeetingMate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62EBF7B029EB90A9001F906E /* MeetingMate.swift */; };
 		62EBF7B329EB90A9001F906E /* Home.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62EBF7B229EB90A9001F906E /* Home.swift */; };
 		62EBF7B529EB90AA001F906E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 62EBF7B429EB90AA001F906E /* Assets.xcassets */; };
@@ -31,6 +35,10 @@
 		620EB83629F41FBC00745221 /* MeetingMateIcon.vectornator */ = {isa = PBXFileReference; lastKnownFileType = file; path = MeetingMateIcon.vectornator; sourceTree = "<group>"; };
 		620EB83729F41FBC00745221 /* MeetingMateIconWBG.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MeetingMateIconWBG.png; sourceTree = "<group>"; };
 		620EB83B29F7515100745221 /* VideoManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoManager.swift; sourceTree = "<group>"; };
+		62DB82222A0681C200F5EE5D /* Errorable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Errorable.swift; sourceTree = "<group>"; };
+		62DB82242A068BFC00F5EE5D /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		62DB82262A06916200F5EE5D /* PermissionDeniedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionDeniedView.swift; sourceTree = "<group>"; };
+		62DB82292A07104100F5EE5D /* Ext+Bundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Ext+Bundle.swift"; sourceTree = "<group>"; };
 		62EBF7AD29EB90A9001F906E /* MeetingMate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MeetingMate.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		62EBF7B029EB90A9001F906E /* MeetingMate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingMate.swift; sourceTree = "<group>"; };
 		62EBF7B229EB90A9001F906E /* Home.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Home.swift; sourceTree = "<group>"; };
@@ -89,8 +97,17 @@
 		623FA34329FF0E0A00203241 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				62DB82242A068BFC00F5EE5D /* SettingsView.swift */,
 			);
 			path = Settings;
+			sourceTree = "<group>";
+		};
+		62DB82212A0681AB00F5EE5D /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				62DB82222A0681C200F5EE5D /* Errorable.swift */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 		62EBF7A429EB90A9001F906E = {
@@ -114,7 +131,9 @@
 			children = (
 				62EBF7B029EB90A9001F906E /* MeetingMate.swift */,
 				62EBF7BF29EB92B4001F906E /* Views */,
+				62DB82262A06916200F5EE5D /* PermissionDeniedView.swift */,
 				62EBF7C029EB92BA001F906E /* View Models */,
+				62DB82212A0681AB00F5EE5D /* Models */,
 				62EBF7C229EB92D5001F906E /* Helpers */,
 				62EBF7B429EB90AA001F906E /* Assets.xcassets */,
 				62EBF7B929EB90AA001F906E /* MeetingMate.entitlements */,
@@ -156,6 +175,7 @@
 			isa = PBXGroup;
 			children = (
 				62EE720929EC9F1C00EE629F /* Constants.swift */,
+				62DB82292A07104100F5EE5D /* Ext+Bundle.swift */,
 				620EB83429F41FB200745221 /* File Assets */,
 			);
 			path = Helpers;
@@ -168,6 +188,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 62EBF7BC29EB90AA001F906E /* Build configuration list for PBXNativeTarget "MeetingMate" */;
 			buildPhases = (
+				62DB82282A06E78500F5EE5D /* Run Swiftlint */,
 				62EBF7A929EB90A9001F906E /* Sources */,
 				62EBF7AA29EB90A9001F906E /* Frameworks */,
 				62EBF7AB29EB90A9001F906E /* Resources */,
@@ -229,22 +250,48 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		62DB82282A06E78500F5EE5D /* Run Swiftlint */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Run Swiftlint";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Check if SwiftLint is installed\nexport PATH=\"$PATH:/opt/homebrew/bin\"\nif which swiftlint > /dev/null; then\n  swiftlint --fix\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		62EBF7A929EB90A9001F906E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				62EE720629EC966A00EE629F /* VideoView.swift in Sources */,
+				62DB822A2A07104100F5EE5D /* Ext+Bundle.swift in Sources */,
 				62EBF7C829EC88F9001F906E /* MeetingMateModel.swift in Sources */,
+				62DB82272A06916200F5EE5D /* PermissionDeniedView.swift in Sources */,
 				62EBF7C429EC7CAE001F906E /* VideoInputPreview.swift in Sources */,
 				6208B72929FE9B6200576867 /* AudioRecorderView.swift in Sources */,
 				62EBF7B329EB90A9001F906E /* Home.swift in Sources */,
 				62EBF7C629EC824F001F906E /* AudioManager.swift in Sources */,
+				62DB82232A0681C200F5EE5D /* Errorable.swift in Sources */,
 				62EBF7B129EB90A9001F906E /* MeetingMate.swift in Sources */,
 				62EE720829EC967200EE629F /* AudioView.swift in Sources */,
 				620EB83C29F7515100745221 /* VideoManager.swift in Sources */,
 				62EE720A29EC9F1C00EE629F /* Constants.swift in Sources */,
 				62EE720C29ECD88F00EE629F /* AudioMeter.swift in Sources */,
+				62DB82252A068BFC00F5EE5D /* SettingsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -379,8 +426,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSUIElement = YES;
-				INFOPLIST_KEY_NSCameraUsageDescription = "Please grant $(PRODUCT_NAME) access to your camera";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Please grant $(PRODUCT_NAME) access to your microphone";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Providing camera access enables camera previews";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Providing microphone access enables audio previews";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -408,8 +455,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSUIElement = YES;
-				INFOPLIST_KEY_NSCameraUsageDescription = "Please grant $(PRODUCT_NAME) access to your camera";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Please grant $(PRODUCT_NAME) access to your microphone";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Providing camera access enables camera previews";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Providing microphone access enables audio previews";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",

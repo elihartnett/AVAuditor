@@ -8,36 +8,42 @@
 import SwiftUI
 
 struct VideoView: View {
-    
+
     @ObservedObject var manager: VideoManager
-    
+
     var body: some View {
-        
+
         VStack {
-            
-            Picker("Video Input", selection: $manager.selectedVideoInputDeviceID) {
-                
+
+            Picker(Constants.videoInput, selection: $manager.selectedVideoInputDeviceID) {
+
                 Text(Constants.none)
                     .tag(Constants.none)
-                
-                ForEach(manager.videoInputOptions ?? [], id: \.self) { videoInputOption in
-                    Text(videoInputOption.localizedName)
-                        .tag(videoInputOption.uniqueID)
+
+                if !manager.permissionDenied {
+                    ForEach(manager.videoInputOptions ?? [], id: \.self) { videoInputOption in
+                        Text(videoInputOption.localizedName)
+                            .tag(videoInputOption.uniqueID)
+                    }
                 }
             }
-            .onChange(of: manager.selectedVideoInputDeviceID) { id in
+            .onChange(of: manager.selectedVideoInputDeviceID) { _ in
                 manager.setSelectedVideoInputDevice()
             }
-            
+
             if manager.selectedVideoInputDevice != nil {
                 ZStack {
                     ProgressView()
                         .controlSize(.large)
-                    
+
                     VideoInputPreview(captureSession: $manager.videoCaptureSession)
-                        .frame(height: 200)
+                        .frame(height: Constants.componentHeight)
                         .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
                 }
+            }
+
+            if manager.permissionDenied {
+                PermissionDeniedView()
             }
         }
     }
