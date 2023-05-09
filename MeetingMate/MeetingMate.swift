@@ -8,19 +8,22 @@
 // Reset video permission - tccutil reset Camera com.elihartnett.MeetingMate
 // Reset audio permission - tccutil reset Microphone com.elihartnett.MeetingMate
 
+#warning("Analytics?")
+
 import SwiftUI
 
 @main
 struct MeetingMate: App {
-    
-    @StateObject var model = MeetingMateModel()
-    
+
+    @StateObject private var model = MeetingMateModel()
+
     var body: some Scene {
         MenuBarExtra {
             Home()
+                .background(.tertiary.opacity(Constants.fifthMultiplier))
                 .environmentObject(model)
         } label: {
-            Image(systemName: "person.and.background.dotted")
+            Image(systemName: Constants.meetingMateIconName)
         }
         .menuBarExtraStyle(.window)
     }
