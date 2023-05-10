@@ -9,26 +9,26 @@ import AVKit
 import Foundation
 
 class AudioManager: Errorable {
-    
+
     @Published var audioInputOptions: [AVCaptureDevice]?
     @Published var selectedAudioInputDeviceID = Constants.none
     @Published var detectedAudioLevel = Constants.zeroMultiplier
-    
+
     @Published var permissionDenied = false
-    
+
     var captureDevice: AVCaptureDevice?
-    
+
     private var captureSession: AVCaptureSession?
     private var audioRecorder: AVCaptureAudioFileOutput?
     private var avPlayer: AVPlayer?
     private let recordingURL = URL.documentsDirectory.appendingPathComponent(Constants.recordingFileName)
-    
+
     override init() {
         super.init()
         audioInputOptions = MeetingMateModel.getAvailableDevices(mediaType: .audio)
         checkPermissions()
     }
-    
+
     func checkPermissions() {
         if AVCaptureDevice.authorizationStatus(for: .audio) ==  .authorized {
             startAudioManager()
@@ -45,11 +45,11 @@ class AudioManager: Errorable {
             })
         }
     }
-    
+
     func startAudioManager() {
         setupCaptureSession()
     }
-    
+
     func resetAudioManager() {
         detectedAudioLevel = Constants.zeroMultiplier
         audioInputOptions = MeetingMateModel.getAvailableDevices(mediaType: .audio)
@@ -58,60 +58,60 @@ class AudioManager: Errorable {
         captureSession = nil
         avPlayer = nil
     }
-    
+
     func setSelectedAudioInputDevice() {
         audioInputOptions = MeetingMateModel.getAvailableDevices(mediaType: .audio)
         captureDevice = audioInputOptions?.first { $0.uniqueID == selectedAudioInputDeviceID }
-        
+
         if captureDevice != nil {
             if !permissionDenied {
                 self.startAudioManager()
             }
         } else { selectedAudioInputDeviceID = Constants.none }
     }
-    
+
     func setupCaptureSession() {
         captureSession = AVCaptureSession()
         audioRecorder = AVCaptureAudioFileOutput()
         guard let captureSession = captureSession else { return }
         guard let captureDevice = captureDevice else { return }
         guard let audioRecorder = audioRecorder else { return }
-        
+
         do {
             let input = try AVCaptureDeviceInput(device: captureDevice)
             let output = AVCaptureAudioDataOutput()
             output.setSampleBufferDelegate(self, queue: DispatchQueue(label: Constants.audioQueueName))
-            
+
             if captureSession.canAddInput(input) {
                 captureSession.addInput(input)
             } else {
                 errorMessage = Constants.errorAddInput
             }
-            
+
             if captureSession.canAddOutput(audioRecorder) {
                 captureSession.addOutput(audioRecorder)
             } else {
                 errorMessage = Constants.errorAddOutput
             }
-            
+
             // Add live output
             if captureSession.canAddOutput(output) {
                 captureSession.addOutput(output)
             } else {
                 errorMessage = Constants.errorAddOutput
             }
-            
+
             captureSession.startRunning()
         } catch {
             errorMessage = Constants.error
         }
     }
-    
+
     func startRecording() {
         setupCaptureSession()
-        
+
         guard let audioRecorder = audioRecorder else { return }
-        
+
         if FileManager.default.fileExists(atPath: recordingURL.path()) {
             do {
                 try FileManager.default.removeItem(at: recordingURL)
@@ -120,14 +120,14 @@ class AudioManager: Errorable {
                 return
             }
         }
-        
+
         audioRecorder.startRecording(to: recordingURL, outputFileType: .m4a, recordingDelegate: self)
     }
-    
+
     func stopRecording() {
         audioRecorder?.stopRecording()
     }
-    
+
     func playRecording() {
         avPlayer = AVPlayer(url: recordingURL)
         guard let avPlayer = avPlayer else { return }

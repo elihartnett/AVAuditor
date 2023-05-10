@@ -5,6 +5,7 @@
 //  Created by Eli Hartnett on 4/16/23.
 //
 
+import Accelerate
 import SwiftUI
 
 struct AudioMeter: View {
