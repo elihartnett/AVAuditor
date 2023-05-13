@@ -33,7 +33,7 @@ struct AudioView: View {
 
             if manager.captureDevice != nil {
                 HStack {
-                    AudioMeter(audioManager: manager)
+                    AudioVisualizer(manager: manager)
                         .frame(height: Constants.componentDetailHeight)
 
                     AudioRecorderView(audioManager: manager)

@@ -5,30 +5,36 @@
 //  Created by Eli Hartnett on 4/16/23.
 //
 
-import AVKit
 import Foundation
+import Accelerate
+import AVKit
+import AVFoundation
 
 class AudioManager: Errorable {
-
+    
     @Published var audioInputOptions: [AVCaptureDevice]?
     @Published var selectedAudioInputDeviceID = Constants.none
     @Published var detectedAudioLevel = Constants.zeroMultiplier
-
+    @Published var fftMagnitudes: [Float] = []
     @Published var permissionDenied = false
-
+    
     var captureDevice: AVCaptureDevice?
-
+    
     private var captureSession: AVCaptureSession?
     private var audioRecorder: AVCaptureAudioFileOutput?
     private var avPlayer: AVPlayer?
     private let recordingURL = URL.documentsDirectory.appendingPathComponent(Constants.recordingFileName)
-
+    private let audioEngine = AVAudioEngine()
+    private let playerNode = AVAudioPlayerNode()
+    private let bufferSize = 1024
+    private let audioBarCount = 40
+    
     override init() {
         super.init()
         audioInputOptions = MeetingMateModel.getAvailableDevices(mediaType: .audio)
         checkPermissions()
     }
-
+    
     func checkPermissions() {
         if AVCaptureDevice.authorizationStatus(for: .audio) ==  .authorized {
             startAudioManager()
@@ -45,11 +51,11 @@ class AudioManager: Errorable {
             })
         }
     }
-
+    
     func startAudioManager() {
         setupCaptureSession()
     }
-
+    
     func resetAudioManager() {
         detectedAudioLevel = Constants.zeroMultiplier
         audioInputOptions = MeetingMateModel.getAvailableDevices(mediaType: .audio)
@@ -58,60 +64,59 @@ class AudioManager: Errorable {
         captureSession = nil
         avPlayer = nil
     }
-
+    
     func setSelectedAudioInputDevice() {
         audioInputOptions = MeetingMateModel.getAvailableDevices(mediaType: .audio)
         captureDevice = audioInputOptions?.first { $0.uniqueID == selectedAudioInputDeviceID }
-
+        
         if captureDevice != nil {
             if !permissionDenied {
                 self.startAudioManager()
             }
         } else { selectedAudioInputDeviceID = Constants.none }
     }
-
+    
     func setupCaptureSession() {
         captureSession = AVCaptureSession()
         audioRecorder = AVCaptureAudioFileOutput()
         guard let captureSession = captureSession else { return }
         guard let captureDevice = captureDevice else { return }
         guard let audioRecorder = audioRecorder else { return }
-
+        
         do {
             let input = try AVCaptureDeviceInput(device: captureDevice)
             let output = AVCaptureAudioDataOutput()
-            output.setSampleBufferDelegate(self, queue: DispatchQueue(label: Constants.audioQueueName))
-
+            
             if captureSession.canAddInput(input) {
                 captureSession.addInput(input)
             } else {
                 errorMessage = Constants.errorAddInput
             }
-
+            
             if captureSession.canAddOutput(audioRecorder) {
                 captureSession.addOutput(audioRecorder)
             } else {
                 errorMessage = Constants.errorAddOutput
             }
-
+            
             // Add live output
             if captureSession.canAddOutput(output) {
                 captureSession.addOutput(output)
             } else {
                 errorMessage = Constants.errorAddOutput
             }
-
+            
             captureSession.startRunning()
         } catch {
             errorMessage = Constants.error
         }
     }
-
+    
     func startRecording() {
         setupCaptureSession()
-
+        
         guard let audioRecorder = audioRecorder else { return }
-
+        
         if FileManager.default.fileExists(atPath: recordingURL.path()) {
             do {
                 try FileManager.default.removeItem(at: recordingURL)
@@ -120,18 +125,74 @@ class AudioManager: Errorable {
                 return
             }
         }
-
+        
         audioRecorder.startRecording(to: recordingURL, outputFileType: .m4a, recordingDelegate: self)
     }
-
+    
     func stopRecording() {
         audioRecorder?.stopRecording()
     }
-
+    
     func playRecording() {
-        avPlayer = AVPlayer(url: recordingURL)
-        guard let avPlayer = avPlayer else { return }
-        avPlayer.play()
+        _ = audioEngine.mainMixerNode
+        
+        audioEngine.prepare()
+        try! audioEngine.start()
+        
+        let audioFile = try! AVAudioFile(forReading: recordingURL)
+        let format = audioFile.processingFormat
+        
+        audioEngine.attach(playerNode)
+        audioEngine.connect(playerNode, to: audioEngine.mainMixerNode, format: format)
+        
+        playerNode.scheduleFile(audioFile, at: nil)
+        playerNode.play()
+        
+        let fftSetup = vDSP_DFT_zop_CreateSetup(
+            nil,
+            UInt(bufferSize),
+            vDSP_DFT_Direction.FORWARD
+        )
+        
+        audioEngine.mainMixerNode.installTap(
+            onBus: 0,
+            bufferSize: UInt32(bufferSize),
+            format: nil
+        ) { [self] buffer, _ in
+            let channelData = buffer.floatChannelData?[0]
+            DispatchQueue.main.async { [self] in
+                fftMagnitudes = fft(data: channelData!, setup: fftSetup!)
+            }
+        }
+    }
+    
+    // Fast Fourier Transform
+    func fft(data: UnsafeMutablePointer<Float>, setup: OpaquePointer) -> [Float] {
+        var realIn = [Float](repeating: 0, count: bufferSize)
+        var imagIn = [Float](repeating: 0, count: bufferSize)
+        var realOut = [Float](repeating: 0, count: bufferSize)
+        var imagOut = [Float](repeating: 0, count: bufferSize)
+        
+        for i in 0 ..< bufferSize {
+            realIn[i] = data[i]
+        }
+        
+        vDSP_DFT_Execute(setup, &realIn, &imagIn, &realOut, &imagOut)
+        
+        var magnitudes = [Float](repeating: 0, count: audioBarCount)
+        
+        realOut.withUnsafeMutableBufferPointer { realBP in
+            imagOut.withUnsafeMutableBufferPointer { imagBP in
+                var complex = DSPSplitComplex(realp: realBP.baseAddress!, imagp: imagBP.baseAddress!)
+                vDSP_zvabs(&complex, 1, &magnitudes, 1, UInt(audioBarCount))
+            }
+        }
+        
+        var normalizedMagnitudes = [Float](repeating: 0.0, count: audioBarCount)
+        var scalingFactor = Float(1)
+        vDSP_vsmul(&magnitudes, 1, &scalingFactor, &normalizedMagnitudes, 1, UInt(audioBarCount))
+        
+        return normalizedMagnitudes
     }
 }
 
@@ -140,9 +201,10 @@ extension AudioManager: AVCaptureAudioDataOutputSampleBufferDelegate {
         let audioChannel = connection.audioChannels.first
         if let level = audioChannel?.averagePowerLevel {
             DispatchQueue.main.async {
-                self.detectedAudioLevel = CGFloat(level)
+                print(CGFloat(level))
             }
         }
+        
     }
 }
 
@@ -156,7 +218,40 @@ extension AudioManager: AVCaptureFileOutputRecordingDelegate {
     }
 }
 
-// ARCHIVED CODE - Can not change capture device with passthrough
+// ARCHIVED CODE - Average output level
+/*
+ output.setSampleBufferDelegate(self, queue: DispatchQueue(label: Constants.audioQueueName))
+ 
+ extension AudioManager: AVCaptureAudioDataOutputSampleBufferDelegate {
+ func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+ let audioChannel = connection.audioChannels.first
+ if let level = audioChannel?.averagePowerLevel {
+ DispatchQueue.main.async {
+ self.detectedAudioLevel = CGFloat(level)
+ }
+ }
+ }
+ }
+ */
+// View
+/*
+ GeometryReader { geo in
+ let audioLevel = CGFloat((audioManager.detectedAudioLevel + 50) / 50)
+ 
+ ZStack(alignment: .leading) {
+ Rectangle()
+ .fill(.tertiary.opacity(Constants.halfMultiplier))
+ 
+ Rectangle()
+ .fill(.primary)
+ .frame(width: geo.size.width * CGFloat(min(max(0, audioLevel), 1)))
+ .animation(.default, value: audioLevel)
+ }
+ .cornerRadius(Constants.componentCornerRadius)
+ }
+ */
+
+// ARCHIVED CODE - passthrough, but can't change mic
 /*
  var audioEngine: AVAudioEngine? = nil
  var playerNode: AVAudioPlayerNode? = nil
@@ -203,7 +298,7 @@ extension AudioManager: AVCaptureFileOutputRecordingDelegate {
  }
  */
 
-// ARCHIVED CODE - laggy audio
+// ARCHIVED CODE - passthrough, but laggy
 /*
  import SwiftUI
  import Foundation
@@ -330,5 +425,4 @@ extension AudioManager: AVCaptureFileOutputRecordingDelegate {
  }
  }
  }
- 
  */
