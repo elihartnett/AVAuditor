@@ -14,7 +14,6 @@ class AudioManager: Errorable {
     
     @Published var audioInputOptions: [AVCaptureDevice]?
     @Published var selectedAudioInputDeviceID = Constants.none
-    @Published var detectedAudioLevel = Constants.zeroMultiplier
     @Published var fftMagnitudes: [Float] = []
     @Published var permissionDenied = false
     
@@ -22,16 +21,14 @@ class AudioManager: Errorable {
     
     private var captureSession: AVCaptureSession?
     private var audioRecorder: AVCaptureAudioFileOutput?
-    private var avPlayer: AVPlayer?
+    private var buffers: [AVAudioPCMBuffer] = []
+
     private let recordingURL = URL.documentsDirectory.appendingPathComponent(Constants.recordingFileName)
     private let audioEngine = AVAudioEngine()
     private let playerNode = AVAudioPlayerNode()
     private let bufferSize = 1024
-    
-    let audioBarCount = 40
-    var buffers: [AVAudioPCMBuffer] = []
-    let monoFormat = AVAudioFormat(standardFormatWithSampleRate: 48000, channels: 1)
-    let bufferQueue = DispatchQueue(label: "com.yourdomain.bufferAccess")
+    private let monoFormat = AVAudioFormat(standardFormatWithSampleRate: 48000, channels: 1)
+    private let bufferQueue = DispatchQueue(label: "com.MeetingMate.BufferAccessQueue")
     
     override init() {
         super.init()
@@ -39,7 +36,47 @@ class AudioManager: Errorable {
         checkPermissions()
     }
     
-    func passthrough() {
+    func checkPermissions() {
+        if AVCaptureDevice.authorizationStatus(for: .audio) ==  .authorized {
+            startAudioManager()
+        } else {
+            AVCaptureDevice.requestAccess(for: .audio, completionHandler: { granted in
+                if granted {
+                    self.permissionDenied = false
+                } else {
+                    self.permissionDenied = true
+                    DispatchQueue.main.async {
+                        self.resetAudioManager()
+                    }
+                }
+            })
+        }
+    }
+    
+    func startAudioManager() {
+        setupCaptureSession()
+    }
+    
+    func resetAudioManager() {
+        audioInputOptions = MeetingMateModel.getAvailableDevices(mediaType: .audio)
+        selectedAudioInputDeviceID = Constants.none
+        captureDevice = nil
+        captureSession = nil
+    }
+    
+    func setSelectedAudioInputDevice() {
+        audioInputOptions = MeetingMateModel.getAvailableDevices(mediaType: .audio)
+        captureDevice = audioInputOptions?.first { $0.uniqueID == selectedAudioInputDeviceID }
+        
+        if captureDevice != nil {
+            if !permissionDenied {
+                // self.startAudioManager()
+                startPassthroughAudio()
+            }
+        } else { selectedAudioInputDeviceID = Constants.none }
+    }
+    
+    func startPassthroughAudio() {
         // Create capture session
         captureSession = AVCaptureSession()
         
@@ -54,7 +91,7 @@ class AudioManager: Errorable {
         
         // Create output location; Redirect all capture session output to delegate
         let output = AVCaptureAudioDataOutput()
-        output.setSampleBufferDelegate(self, queue: DispatchQueue(label: "AudioDataOutputQueue"))
+        output.setSampleBufferDelegate(self, queue: DispatchQueue(label: "com.MeetingMate.PassthroughAudioQueue"))
         captureSession?.addOutput(output)
         
         // Start capture session (Start sending output to delegate)
@@ -91,48 +128,6 @@ class AudioManager: Errorable {
                 fftMagnitudes = fft(data: channelData!, setup: fftSetup!)
             }
         }
-    }
-    
-    func checkPermissions() {
-        if AVCaptureDevice.authorizationStatus(for: .audio) ==  .authorized {
-            startAudioManager()
-        } else {
-            AVCaptureDevice.requestAccess(for: .audio, completionHandler: { granted in
-                if granted {
-                    self.permissionDenied = false
-                } else {
-                    self.permissionDenied = true
-                    DispatchQueue.main.async {
-                        self.resetAudioManager()
-                    }
-                }
-            })
-        }
-    }
-    
-    func startAudioManager() {
-        setupCaptureSession()
-    }
-    
-    func resetAudioManager() {
-        detectedAudioLevel = Constants.zeroMultiplier
-        audioInputOptions = MeetingMateModel.getAvailableDevices(mediaType: .audio)
-        selectedAudioInputDeviceID = Constants.none
-        captureDevice = nil
-        captureSession = nil
-        avPlayer = nil
-    }
-    
-    func setSelectedAudioInputDevice() {
-        audioInputOptions = MeetingMateModel.getAvailableDevices(mediaType: .audio)
-        captureDevice = audioInputOptions?.first { $0.uniqueID == selectedAudioInputDeviceID }
-        
-        if captureDevice != nil {
-            if !permissionDenied {
-                //                self.startAudioManager()
-                passthrough()
-            }
-        } else { selectedAudioInputDeviceID = Constants.none }
     }
     
     func setupCaptureSession() {
@@ -227,6 +222,14 @@ class AudioManager: Errorable {
         }
     }
     
+    func muteLivePlayback() {
+        audioEngine.mainMixerNode.outputVolume = 0
+    }
+    
+    func unmuteLivePlayback() {
+        audioEngine.mainMixerNode.outputVolume = 1
+    }
+    
     // Fast Fourier Transform
     func fft(data: UnsafeMutablePointer<Float>, setup: OpaquePointer) -> [Float] {
         var realIn = [Float](repeating: 0, count: bufferSize)
@@ -240,19 +243,19 @@ class AudioManager: Errorable {
         
         vDSP_DFT_Execute(setup, &realIn, &imagIn, &realOut, &imagOut)
         
-        var magnitudes = [Float](repeating: 0, count: audioBarCount)
+        var magnitudes = [Float](repeating: 0, count: Constants.audioBarCount)
         
         realOut.withUnsafeMutableBufferPointer { realBP in
             imagOut.withUnsafeMutableBufferPointer { imagBP in
                 var complex = DSPSplitComplex(realp: realBP.baseAddress!, imagp: imagBP.baseAddress!)
-                vDSP_zvabs(&complex, 1, &magnitudes, 1, UInt(audioBarCount))
+                vDSP_zvabs(&complex, 1, &magnitudes, 1, UInt(Constants.audioBarCount))
             }
         }
         
-        var normalizedMagnitudes = [Float](repeating: 0.0, count: audioBarCount)
+        var normalizedMagnitudes = [Float](repeating: 0.0, count: Constants.audioBarCount)
         #warning("Add sensitivity to settings")
         var scalingFactor = Float(1)
-        vDSP_vsmul(&magnitudes, 1, &scalingFactor, &normalizedMagnitudes, 1, UInt(audioBarCount))
+        vDSP_vsmul(&magnitudes, 1, &scalingFactor, &normalizedMagnitudes, 1, UInt(Constants.audioBarCount))
         
         return normalizedMagnitudes
     }
@@ -307,212 +310,3 @@ extension AudioManager: AVCaptureFileOutputRecordingDelegate {
         playRecording()
     }
 }
-
-// ARCHIVED CODE - Average output level
-/*
- output.setSampleBufferDelegate(self, queue: DispatchQueue(label: Constants.audioQueueName))
- 
- extension AudioManager: AVCaptureAudioDataOutputSampleBufferDelegate {
- func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
- let audioChannel = connection.audioChannels.first
- if let level = audioChannel?.averagePowerLevel {
- DispatchQueue.main.async {
- self.detectedAudioLevel = CGFloat(level)
- }
- }
- }
- }
- */
-// View
-/*
- GeometryReader { geo in
- let audioLevel = CGFloat((audioManager.detectedAudioLevel + 50) / 50)
- 
- ZStack(alignment: .leading) {
- Rectangle()
- .fill(.tertiary.opacity(Constants.halfMultiplier))
- 
- Rectangle()
- .fill(.primary)
- .frame(width: geo.size.width * CGFloat(min(max(0, audioLevel), 1)))
- .animation(.default, value: audioLevel)
- }
- .cornerRadius(Constants.componentCornerRadius)
- }
- */
-
-// ARCHIVED CODE - passthrough, but can't change mic
-/*
- var audioEngine: AVAudioEngine? = nil
- var playerNode: AVAudioPlayerNode? = nil
- var mainMixerNode: AVAudioMixerNode? = nil
- func startLivePlayback(mute: Bool) {
- audioEngine = AVAudioEngine()
- playerNode = AVAudioPlayerNode()
- 
- guard let audioEngine = audioEngine else { return }
- guard let playerNode = playerNode else { return }
- 
- let inputNode = audioEngine.inputNode
- let inputFormat = inputNode.inputFormat(forBus: 0)
- mainMixerNode = audioEngine.mainMixerNode
- guard let mainMixerNode = mainMixerNode else { return }
- if mute {
- muteLivePlayback()
- }
- else {
- muteLivePlayback()
- }
- 
- audioEngine.attach(playerNode)
- audioEngine.connect(playerNode, to: mainMixerNode, format: inputFormat)
- 
- inputNode.installTap(onBus: 0, bufferSize: 1024, format: inputFormat) { (buffer, time) in
- self.playerNode?.scheduleBuffer(buffer, completionHandler: nil)
- }
- 
- do {
- try audioEngine.start()
- playerNode.play()
- } catch {
- print("Error starting the audio engine: \(error)")
- }
- }
- 
- func muteLivePlayback() {
- mainMixerNode?.outputVolume = 0
- }
- 
- func unmuteLivePlayback() {
- mainMixerNode?.outputVolume = 1
- }
- */
-
-// ARCHIVED CODE - passthrough, but laggy
-/*
- import SwiftUI
- import Foundation
- import AVFoundation
- 
- struct ContentView: View {
- @StateObject private var audioHandler = AudioHandler()
- @State private var selectedDevice: AVCaptureDevice?
- 
- var body: some View {
- VStack {
- Text("Select Microphone")
- .font(.headline)
- 
- Picker("Input Devices", selection: $selectedDevice) {
- ForEach(audioHandler.inputDevices, id: \.uniqueID) { device in
- Text(device.localizedName).tag(device as AVCaptureDevice?)
- }
- }
- .pickerStyle(MenuPickerStyle())
- .padding()
- 
- Button("Start Audio Passthrough") {
- if let device = selectedDevice {
- audioHandler.startAudioCapture(device: device)
- }
- }
- }
- .frame(maxWidth: .infinity, maxHeight: .infinity)
- }
- }
- 
- struct ContentView_Previews: PreviewProvider {
- static var previews: some View {
- ContentView()
- }
- }
- 
- class AudioHandler: NSObject, ObservableObject {
- @Published var inputDevices: [AVCaptureDevice] = []
- var audioSession: AVCaptureSession?
- var audioEngine = AVAudioEngine()
- var audioPlayerNode = AVAudioPlayerNode()
- 
- override init() {
- super.init()
- inputDevices = AVCaptureDevice.devices(for: .audio)
- }
- 
- func startAudioCapture(device: AVCaptureDevice) {
- audioSession?.stopRunning()
- audioSession = nil
- 
- let newSession = AVCaptureSession()
- 
- do {
- let input = try AVCaptureDeviceInput(device: device)
- newSession.addInput(input)
- } catch {
- print("Error setting up audio input: \(error)")
- return
- }
- 
- let output = AVCaptureAudioDataOutput()
- output.setSampleBufferDelegate(self, queue: DispatchQueue(label: "AudioDataOutputQueue"))
- newSession.addOutput(output)
- 
- newSession.startRunning()
- audioSession = newSession
- 
- audioEngine.attach(audioPlayerNode)
- audioEngine.connect(audioPlayerNode, to: audioEngine.mainMixerNode, format: nil)
- audioEngine.connect(audioEngine.mainMixerNode, to: audioEngine.outputNode, format: nil)
- 
- do {
- try audioEngine.start()
- } catch {
- print("Error starting audio engine: \(error)")
- }
- }
- }
- 
- extension AudioHandler: AVCaptureAudioDataOutputSampleBufferDelegate {
- func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
- 
- // Get the audio buffer from the sample buffer
- var audioBufferList = AudioBufferList()
- var blockBuffer: CMBlockBuffer?
- 
- let status = CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer(
- sampleBuffer,
- bufferListSizeNeededOut: nil,
- bufferListOut: &audioBufferList,
- bufferListSize: MemoryLayout<AudioBufferList>.size,
- blockBufferAllocator: nil,
- blockBufferMemoryAllocator: nil,
- flags: 0,
- blockBufferOut: &blockBuffer
- )
- 
- guard status == noErr, let audioBuffer = audioBufferList.mBuffers.mData, audioBufferList.mNumberBuffers > 0 else {
- print("Error getting audio buffer from sample buffer")
- return
- }
- 
- // Get output format from the audio engine's output node
- let outputFormat = audioEngine.outputNode.outputFormat(forBus: 0)
- 
- // Create an AVAudioPCMBuffer from the audio buffer using the output format
- guard let audioPCMBuffer = AVAudioPCMBuffer(pcmFormat: outputFormat, frameCapacity: UInt32(audioBufferList.mBuffers.mDataByteSize) / outputFormat.streamDescription.pointee.mBytesPerFrame) else {
- print("Error creating AVAudioPCMBuffer")
- return
- }
- audioPCMBuffer.frameLength = audioPCMBuffer.frameCapacity
- 
- let src = UnsafeMutableRawPointer(audioBuffer)
- let dst = audioPCMBuffer.floatChannelData![0]
- memcpy(dst, src, Int(audioBufferList.mBuffers.mDataByteSize))
- 
- // Play the audio through the audio engine
- audioPlayerNode.scheduleBuffer(audioPCMBuffer, completionHandler: nil)
- if !audioPlayerNode.isPlaying {
- audioPlayerNode.play()
- }
- }
- }
- */
