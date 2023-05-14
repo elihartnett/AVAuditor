@@ -27,12 +27,70 @@ class AudioManager: Errorable {
     private let audioEngine = AVAudioEngine()
     private let playerNode = AVAudioPlayerNode()
     private let bufferSize = 1024
-    private let audioBarCount = 40
+    
+    let audioBarCount = 40
+    var buffers: [AVAudioPCMBuffer] = []
+    let monoFormat = AVAudioFormat(standardFormatWithSampleRate: 48000, channels: 1)
+    let bufferQueue = DispatchQueue(label: "com.yourdomain.bufferAccess")
     
     override init() {
         super.init()
         audioInputOptions = MeetingMateModel.getAvailableDevices(mediaType: .audio)
         checkPermissions()
+    }
+    
+    func passthrough() {
+        // Create capture session
+        captureSession = AVCaptureSession()
+        
+        // Add selected capture device to capture session
+        do {
+            let input = try AVCaptureDeviceInput(device: captureDevice!)
+            captureSession?.addInput(input)
+        } catch {
+            print("Error setting up audio input: \(error)")
+            return
+        }
+        
+        // Create output location; Redirect all capture session output to delegate
+        let output = AVCaptureAudioDataOutput()
+        output.setSampleBufferDelegate(self, queue: DispatchQueue(label: "AudioDataOutputQueue"))
+        captureSession?.addOutput(output)
+        
+        // Start capture session (Start sending output to delegate)
+        captureSession?.startRunning()
+        
+        // Attach player node to audio engine
+        audioEngine.attach(playerNode)
+        
+        // player node -> mainMixerNode
+        audioEngine.connect(playerNode, to: audioEngine.mainMixerNode, format: monoFormat)
+        
+        // mainMixerNode -> audioEngine output
+        audioEngine.connect(audioEngine.mainMixerNode, to: audioEngine.outputNode, format: monoFormat)
+        
+        do {
+            try audioEngine.start()
+        } catch {
+            print("Error starting audio engine: \(error)")
+        }
+        
+        let fftSetup = vDSP_DFT_zop_CreateSetup(
+            nil,
+            UInt(bufferSize),
+            vDSP_DFT_Direction.FORWARD
+        )
+        
+        audioEngine.mainMixerNode.installTap(
+            onBus: 0,
+            bufferSize: UInt32(bufferSize),
+            format: monoFormat
+        ) { [self] buffer, _ in
+            let channelData = buffer.floatChannelData?[0]
+            DispatchQueue.main.async { [self] in
+                fftMagnitudes = fft(data: channelData!, setup: fftSetup!)
+            }
+        }
     }
     
     func checkPermissions() {
@@ -71,7 +129,8 @@ class AudioManager: Errorable {
         
         if captureDevice != nil {
             if !permissionDenied {
-                self.startAudioManager()
+                //                self.startAudioManager()
+                passthrough()
             }
         } else { selectedAudioInputDeviceID = Constants.none }
     }
@@ -146,6 +205,8 @@ class AudioManager: Errorable {
         audioEngine.connect(playerNode, to: audioEngine.mainMixerNode, format: format)
         
         playerNode.scheduleFile(audioFile, at: nil)
+        #warning("Correlate with mic sensitivity")
+        playerNode.volume = 1
         playerNode.play()
         
         let fftSetup = vDSP_DFT_zop_CreateSetup(
@@ -189,6 +250,7 @@ class AudioManager: Errorable {
         }
         
         var normalizedMagnitudes = [Float](repeating: 0.0, count: audioBarCount)
+        #warning("Add sensitivity to settings")
         var scalingFactor = Float(1)
         vDSP_vsmul(&magnitudes, 1, &scalingFactor, &normalizedMagnitudes, 1, UInt(audioBarCount))
         
@@ -198,13 +260,41 @@ class AudioManager: Errorable {
 
 extension AudioManager: AVCaptureAudioDataOutputSampleBufferDelegate {
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-        let audioChannel = connection.audioChannels.first
-        if let level = audioChannel?.averagePowerLevel {
-            DispatchQueue.main.async {
-                print(CGFloat(level))
+        if let buffer = createPCMBuffer(from: sampleBuffer) {
+            bufferQueue.sync {
+                buffers.append(buffer)
             }
         }
         
+        scheduleNextBuffer()
+    }
+    
+    func scheduleNextBuffer() {
+        
+        bufferQueue.sync {
+            if !buffers.isEmpty {
+                let nextBuffer = buffers.removeFirst()
+                
+                playerNode.scheduleBuffer(nextBuffer) {
+                    self.scheduleNextBuffer()
+                }
+                
+                if !audioEngine.isRunning {
+                    try! audioEngine.start()
+                }
+                playerNode.play()
+            }
+        }
+    }
+    
+    // https://stackoverflow.com/questions/75228267/avaudioplayernode-causing-distortion
+    func createPCMBuffer(from sampleBuffer: CMSampleBuffer) -> AVAudioPCMBuffer? {
+        let numSamples = AVAudioFrameCount(sampleBuffer.numSamples)
+        let format = AVAudioFormat(cmAudioFormatDescription: sampleBuffer.formatDescription!)
+        let pcmBuffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: numSamples)!
+        pcmBuffer.frameLength = numSamples
+        CMSampleBufferCopyPCMDataIntoAudioBufferList(sampleBuffer, at: 0, frameCount: Int32(numSamples), into: pcmBuffer.mutableAudioBufferList)
+        return pcmBuffer
     }
 }
 

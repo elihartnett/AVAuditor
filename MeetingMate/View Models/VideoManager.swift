@@ -15,6 +15,9 @@ class VideoManager: Errorable {
     @Published var selectedVideoInputDeviceID = Constants.none
     @Published var selectedVideoInputDevice: AVCaptureDevice?
     @Published var videoCaptureSession: AVCaptureSession?
+    
+    #warning("Add to settings")
+    @Published var avLayerVideoGravity: AVLayerVideoGravity = .resizeAspect
 
     @Published var permissionDenied = false
 

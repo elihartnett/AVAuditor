@@ -15,33 +15,38 @@ struct AudioVisualizer: View {
 
     @ObservedObject var manager: AudioManager
 
-    private let magnitudeLimit: Float = 32
-
     @State var data = [Float]()
+    
+    private let magnitudeMin: Float = 0.0
+    private let magnitudeMax: Float = 32
 
     var body: some View {
-        Chart(Array(data.enumerated()), id: \.0) { index, magnitude in
-            BarMark(
-                x: .value("Frequency", String(index)),
-                y: .value("Magnitude", max(0.1, magnitude))
-            )
-            .foregroundStyle(.white)
+        
+        GeometryReader { proxy in
+            
+            Chart(Array(data.enumerated()), id: \.0) { index, magnitude in
+                let ratio = magnitude.magnitude / magnitudeMax
+                let scaledRatio = ratio * Float(proxy.size.height)
+                let minnedRatio = max(magnitudeMin, scaledRatio)
+                let maxxedRatio = min(minnedRatio, Float(proxy.size.height))
+                
+                BarMark(
+                    x: .value("Frequency", String(index)),
+                    y: .value("Magnitude", maxxedRatio)
+                )
+                .foregroundStyle(.white)
+            }
+            .onChange(of: manager.fftMagnitudes) { _ in
+                updateData()
+            }
+            .animation(.linear(duration: 0.1), value: data)
+            .chartYScale(domain: 0...Float(proxy.size.height))
+            .chartXAxis(.hidden)
+            .chartYAxis(.hidden)
         }
-        .onChange(of: manager.fftMagnitudes) { _ in
-            updateData()
-        }
-        .chartYScale(domain: 0...magnitudeLimit)
-        .chartXAxis(.hidden)
-        .chartYAxis(.hidden)
-        .frame(height: 100)
-        .padding()
-        .cornerRadius(10)
     }
 
     func updateData() {
-        withAnimation {
-            data = manager.fftMagnitudes.map { min(Float($0), magnitudeLimit) }
-
-        }
+        data = manager.fftMagnitudes.map { Float($0) }
     }
 }

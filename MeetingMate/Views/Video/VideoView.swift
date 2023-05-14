@@ -39,6 +39,8 @@ struct VideoView: View {
                     VideoInputPreview(captureSession: $manager.videoCaptureSession)
                         .frame(height: Constants.componentHeight)
                         .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
+                        .background(Material.ultraThick)
+                        .cornerRadius(Constants.componentCornerRadius)
                 }
             }
 

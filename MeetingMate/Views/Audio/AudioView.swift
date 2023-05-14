@@ -34,7 +34,7 @@ struct AudioView: View {
             if manager.captureDevice != nil {
                 HStack {
                     AudioVisualizer(manager: manager)
-                        .frame(height: Constants.componentDetailHeight)
+                        .frame(height: Constants.componentHeight / 2)
 
                     AudioRecorderView(audioManager: manager)
                         .frame(width: Constants.componentDetailHeight, height: Constants.componentDetailHeight)
@@ -46,7 +46,6 @@ struct AudioView: View {
                 PermissionDeniedView()
             }
         }
-        .onAppear { manager.startAudioManager() }
     }
 }
 
