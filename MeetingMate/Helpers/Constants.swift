@@ -17,6 +17,7 @@ struct Constants {
     static let componentHeight: CGFloat = 200
     static let componentDetailHeight: CGFloat = 20
     static let componentCornerRadius: CGFloat = 10.0
+    static let audioBarCount = 40
     static let zeroMultiplier: CGFloat = .zero
     static let fifteenthMultiplier: CGFloat = 0.0667
     static let tenthMultiplier: CGFloat = 0.1
