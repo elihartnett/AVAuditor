@@ -11,13 +11,6 @@ struct AudioView: View {
     
     @ObservedObject var manager: AudioManager
     
-    @State var mute = true {
-        didSet {
-            if mute { manager.muteLivePlayback() }
-            else { manager.unmuteLivePlayback() }
-        }
-    }
-    
     var body: some View {
         
         VStack {

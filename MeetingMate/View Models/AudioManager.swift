@@ -85,60 +85,6 @@ class AudioManager: Errorable {
         }
     }
     
-    func startPassthroughAudio() {
-        // Create capture session
-        captureSession = AVCaptureSession()
-        
-        // Add selected capture device to capture session
-        do {
-            let input = try AVCaptureDeviceInput(device: captureDevice!)
-            captureSession?.addInput(input)
-        } catch {
-            print("Error setting up audio input: \(error)")
-            return
-        }
-        
-        // Create output location; Redirect all capture session output to delegate
-        let output = AVCaptureAudioDataOutput()
-        output.setSampleBufferDelegate(self, queue: DispatchQueue(label: "com.MeetingMate.PassthroughAudioQueue"))
-        captureSession?.addOutput(output)
-        
-        // Start capture session (Start sending output to delegate)
-        captureSession?.startRunning()
-        
-        // Attach player node to audio engine
-        audioEngine.attach(playerNode)
-        
-        // player node -> mainMixerNode
-        audioEngine.connect(playerNode, to: audioEngine.mainMixerNode, format: monoFormat)
-        
-        // mainMixerNode -> audioEngine output
-        audioEngine.connect(audioEngine.mainMixerNode, to: audioEngine.outputNode, format: monoFormat)
-        
-        do {
-            try audioEngine.start()
-        } catch {
-            print("Error starting audio engine: \(error)")
-        }
-        
-        let fftSetup = vDSP_DFT_zop_CreateSetup(
-            nil,
-            UInt(bufferSize),
-            vDSP_DFT_Direction.FORWARD
-        )
-        
-        audioEngine.mainMixerNode.installTap(
-            onBus: 0,
-            bufferSize: UInt32(bufferSize),
-            format: monoFormat
-        ) { [self] buffer, _ in
-            let channelData = buffer.floatChannelData?[0]
-            DispatchQueue.main.async { [self] in
-                fftMagnitudes = fft(data: channelData!, setup: fftSetup!)
-            }
-        }
-    }
-    
     func setupCaptureSession() {
         captureSession = AVCaptureSession()
         audioRecorder = AVCaptureAudioFileOutput()
@@ -251,14 +197,6 @@ class AudioManager: Errorable {
                 fftMagnitudes = fft(data: channelData!, setup: fftSetup!)
             }
         }
-    }
-    
-    func muteLivePlayback() {
-        audioEngine.mainMixerNode.outputVolume = 0
-    }
-    
-    func unmuteLivePlayback() {
-        audioEngine.mainMixerNode.outputVolume = 1
     }
     
     // Fast Fourier Transform
