@@ -16,16 +16,19 @@ class AudioManager: Errorable {
     @Published var selectedAudioInputDeviceID = Constants.none
     @Published var fftMagnitudes: [Float] = []
     @Published var permissionDenied = false
+    @Published var passthroughMuted = true
     
     var captureDevice: AVCaptureDevice?
     
     private var captureSession: AVCaptureSession?
     private var audioRecorder: AVCaptureAudioFileOutput?
     private var buffers: [AVAudioPCMBuffer] = []
+    private var mutedBeforeRecording = true
 
     private let recordingURL = URL.documentsDirectory.appendingPathComponent(Constants.recordingFileName)
     private let audioEngine = AVAudioEngine()
-    private let playerNode = AVAudioPlayerNode()
+    private let passthroughPlayerNode = AVAudioPlayerNode()
+    private let recordingPlayerNode = AVAudioPlayerNode()
     private let bufferSize = 1024
     private let monoFormat = AVAudioFormat(standardFormatWithSampleRate: 48000, channels: 1)
     private let bufferQueue = DispatchQueue(label: "com.MeetingMate.BufferAccessQueue")
@@ -34,11 +37,12 @@ class AudioManager: Errorable {
         super.init()
         audioInputOptions = MeetingMateModel.getAvailableDevices(mediaType: .audio)
         checkPermissions()
+        #warning("Once started, passthrough node should be muted. Muting should not affect graph")
     }
     
     func checkPermissions() {
         if AVCaptureDevice.authorizationStatus(for: .audio) ==  .authorized {
-            startAudioManager()
+            permissionDenied = false
         } else {
             AVCaptureDevice.requestAccess(for: .audio, completionHandler: { granted in
                 if granted {
@@ -53,15 +57,17 @@ class AudioManager: Errorable {
         }
     }
     
-    func startAudioManager() {
-        setupCaptureSession()
-    }
-    
     func resetAudioManager() {
         audioInputOptions = MeetingMateModel.getAvailableDevices(mediaType: .audio)
         selectedAudioInputDeviceID = Constants.none
+        fftMagnitudes = Array(repeating: Float(0), count: Constants.audioBarCount)
+        permissionDenied = false
+        
         captureDevice = nil
+        
         captureSession = nil
+        audioRecorder = nil
+        buffers = []
     }
     
     func setSelectedAudioInputDevice() {
@@ -69,63 +75,12 @@ class AudioManager: Errorable {
         captureDevice = audioInputOptions?.first { $0.uniqueID == selectedAudioInputDeviceID }
         
         if captureDevice != nil {
-            if !permissionDenied {
-                // self.startAudioManager()
-                startPassthroughAudio()
+            if permissionDenied {
+                resetAudioManager()
             }
-        } else { selectedAudioInputDeviceID = Constants.none }
-    }
-    
-    func startPassthroughAudio() {
-        // Create capture session
-        captureSession = AVCaptureSession()
-        
-        // Add selected capture device to capture session
-        do {
-            let input = try AVCaptureDeviceInput(device: captureDevice!)
-            captureSession?.addInput(input)
-        } catch {
-            print("Error setting up audio input: \(error)")
-            return
-        }
-        
-        // Create output location; Redirect all capture session output to delegate
-        let output = AVCaptureAudioDataOutput()
-        output.setSampleBufferDelegate(self, queue: DispatchQueue(label: "com.MeetingMate.PassthroughAudioQueue"))
-        captureSession?.addOutput(output)
-        
-        // Start capture session (Start sending output to delegate)
-        captureSession?.startRunning()
-        
-        // Attach player node to audio engine
-        audioEngine.attach(playerNode)
-        
-        // player node -> mainMixerNode
-        audioEngine.connect(playerNode, to: audioEngine.mainMixerNode, format: monoFormat)
-        
-        // mainMixerNode -> audioEngine output
-        audioEngine.connect(audioEngine.mainMixerNode, to: audioEngine.outputNode, format: monoFormat)
-        
-        do {
-            try audioEngine.start()
-        } catch {
-            print("Error starting audio engine: \(error)")
-        }
-        
-        let fftSetup = vDSP_DFT_zop_CreateSetup(
-            nil,
-            UInt(bufferSize),
-            vDSP_DFT_Direction.FORWARD
-        )
-        
-        audioEngine.mainMixerNode.installTap(
-            onBus: 0,
-            bufferSize: UInt32(bufferSize),
-            format: monoFormat
-        ) { [self] buffer, _ in
-            let channelData = buffer.floatChannelData?[0]
-            DispatchQueue.main.async { [self] in
-                fftMagnitudes = fft(data: channelData!, setup: fftSetup!)
+            else {
+                setupCaptureSession()
+                setupPassthroughAudio()
             }
         }
     }
@@ -133,14 +88,13 @@ class AudioManager: Errorable {
     func setupCaptureSession() {
         captureSession = AVCaptureSession()
         audioRecorder = AVCaptureAudioFileOutput()
+        
         guard let captureSession = captureSession else { return }
         guard let captureDevice = captureDevice else { return }
         guard let audioRecorder = audioRecorder else { return }
         
         do {
             let input = try AVCaptureDeviceInput(device: captureDevice)
-            let output = AVCaptureAudioDataOutput()
-            
             if captureSession.canAddInput(input) {
                 captureSession.addInput(input)
             } else {
@@ -153,7 +107,8 @@ class AudioManager: Errorable {
                 errorMessage = Constants.errorAddOutput
             }
             
-            // Add live output
+            let output = AVCaptureAudioDataOutput()
+            output.setSampleBufferDelegate(self, queue: DispatchQueue(label: "com.MeetingMate.PassthroughAudioQueue"))
             if captureSession.canAddOutput(output) {
                 captureSession.addOutput(output)
             } else {
@@ -165,9 +120,32 @@ class AudioManager: Errorable {
             errorMessage = Constants.error
         }
     }
+
     
+    func setupPassthroughAudio() {
+        audioEngine.attach(passthroughPlayerNode)
+        audioEngine.connect(passthroughPlayerNode, to: audioEngine.mainMixerNode, format: monoFormat)
+        audioEngine.connect(audioEngine.mainMixerNode, to: audioEngine.outputNode, format: monoFormat)
+                
+        do {
+            try audioEngine.start()
+        } catch {
+            #warning("show all printed errors")
+            print("Error starting audio engine: \(error)")
+        }
+        
+        let fftSetup = vDSP_DFT_zop_CreateSetup(nil, UInt(bufferSize), vDSP_DFT_Direction.FORWARD)
+        audioEngine.mainMixerNode.installTap(onBus: 0, bufferSize: UInt32(bufferSize), format: monoFormat) { [self] buffer, _ in
+            let channelData = buffer.floatChannelData?[0]
+            DispatchQueue.main.async { [self] in
+                fftMagnitudes = fft(data: channelData!, setup: fftSetup!)
+            }
+        }
+    }
+        
     func startRecording() {
-        setupCaptureSession()
+        mutedBeforeRecording = passthroughMuted
+        passthroughMuted = true
         
         guard let audioRecorder = audioRecorder else { return }
         
@@ -184,50 +162,41 @@ class AudioManager: Errorable {
     }
     
     func stopRecording() {
-        audioRecorder?.stopRecording()
+        guard let audioRecorder = audioRecorder else { return }
+
+        audioRecorder.stopRecording()
     }
     
     func playRecording() {
-        _ = audioEngine.mainMixerNode
         
-        audioEngine.prepare()
-        try! audioEngine.start()
+        audioEngine.attach(recordingPlayerNode)
+        audioEngine.connect(recordingPlayerNode, to: audioEngine.mainMixerNode, format: monoFormat)
+        audioEngine.connect(audioEngine.mainMixerNode, to: audioEngine.outputNode, format: monoFormat)
         
         let audioFile = try! AVAudioFile(forReading: recordingURL)
-        let format = audioFile.processingFormat
         
-        audioEngine.attach(playerNode)
-        audioEngine.connect(playerNode, to: audioEngine.mainMixerNode, format: format)
+        let playbackCompletionHandler: AVAudioNodeCompletionHandler = {
+            DispatchQueue.main.async {
+                self.passthroughMuted = self.mutedBeforeRecording
+            }
+        }
         
-        playerNode.scheduleFile(audioFile, at: nil)
-        #warning("Correlate with mic sensitivity")
-        playerNode.volume = 1
-        playerNode.play()
+#warning("Correlate with mic sensitivity")
+        //        passthroughPlayerNode.volume = 0
+        //        recordingPlayerNode.volume = 1
+        recordingPlayerNode.scheduleFile(audioFile, at: nil, completionHandler: playbackCompletionHandler)
+        recordingPlayerNode.play()
         
-        let fftSetup = vDSP_DFT_zop_CreateSetup(
-            nil,
-            UInt(bufferSize),
-            vDSP_DFT_Direction.FORWARD
-        )
         
-        audioEngine.mainMixerNode.installTap(
-            onBus: 0,
-            bufferSize: UInt32(bufferSize),
-            format: nil
-        ) { [self] buffer, _ in
+        
+        
+        let fftSetup = vDSP_DFT_zop_CreateSetup(nil, UInt(bufferSize), vDSP_DFT_Direction.FORWARD)
+        audioEngine.mainMixerNode.installTap(onBus: 0, bufferSize: UInt32(bufferSize), format: monoFormat) { [self] buffer, _ in
             let channelData = buffer.floatChannelData?[0]
             DispatchQueue.main.async { [self] in
                 fftMagnitudes = fft(data: channelData!, setup: fftSetup!)
             }
         }
-    }
-    
-    func muteLivePlayback() {
-        audioEngine.mainMixerNode.outputVolume = 0
-    }
-    
-    func unmuteLivePlayback() {
-        audioEngine.mainMixerNode.outputVolume = 1
     }
     
     // Fast Fourier Transform
@@ -278,14 +247,14 @@ extension AudioManager: AVCaptureAudioDataOutputSampleBufferDelegate {
             if !buffers.isEmpty {
                 let nextBuffer = buffers.removeFirst()
                 
-                playerNode.scheduleBuffer(nextBuffer) {
+                passthroughPlayerNode.scheduleBuffer(nextBuffer) {
                     self.scheduleNextBuffer()
                 }
                 
                 if !audioEngine.isRunning {
                     try! audioEngine.start()
                 }
-                playerNode.play()
+                passthroughPlayerNode.play()
             }
         }
     }

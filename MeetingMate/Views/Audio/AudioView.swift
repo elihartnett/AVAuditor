@@ -11,13 +11,6 @@ struct AudioView: View {
     
     @ObservedObject var manager: AudioManager
     
-    @State var mute = true {
-        didSet {
-            if mute { manager.muteLivePlayback() }
-            else { manager.unmuteLivePlayback() }
-        }
-    }
-    
     var body: some View {
         
         VStack {
@@ -41,16 +34,18 @@ struct AudioView: View {
             if manager.captureDevice != nil {
                 HStack {
                     AudioVisualizer(manager: manager)
-                        .frame(height: Constants.componentHeight / 2)
+                        .frame(height: Constants.componentDetailHeight)
                     
                     VStack {
                         AudioRecorderView(audioManager: manager)
                             .frame(width: Constants.componentDetailHeight, height: Constants.componentDetailHeight)
                         
                         Button {
-                            mute.toggle()
+                            withAnimation {
+                                manager.passthroughMuted.toggle()
+                            }
                         } label: {
-                            Image(systemName: mute ? "speaker.slash" : "speaker")
+                            Image(systemName: manager.passthroughMuted ? "speaker.slash" : "speaker")
                         }
                         .frame(width: Constants.componentDetailHeight, height: Constants.componentDetailHeight)
                     }
