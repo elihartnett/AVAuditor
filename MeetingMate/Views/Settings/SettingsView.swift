@@ -38,6 +38,7 @@ struct SettingsView: View {
             }
             .keyboardShortcut(Constants.quitShortcut)
         }
+        .border(.red)
     }
 
 //    var submitFeedbackButton: some View {

@@ -10,20 +10,22 @@ import Accelerate
 import AVKit
 import AVFoundation
 
+#warning("Add sensitivity")
 class AudioManager: Errorable {
     
     @Published var audioInputOptions: [AVCaptureDevice]?
     @Published var selectedAudioInputDeviceID = Constants.none
     @Published var fftMagnitudes: [Float] = []
     @Published var permissionDenied = false
-    @Published var passthroughMuted = true
+    @Published var playerNodeMuted = true
     
     var captureDevice: AVCaptureDevice?
     
     private var captureSession: AVCaptureSession?
+    private var isRecording = false
     private var audioRecorder: AVCaptureAudioFileOutput?
     private var buffers: [AVAudioPCMBuffer] = []
-    private var mutedBeforeRecording = true
+    private var playerNodeMutedBackup = true
     
     private let recordingURL = URL.documentsDirectory.appendingPathComponent(Constants.recordingFileName)
     private let audioEngine = AVAudioEngine()
@@ -36,7 +38,13 @@ class AudioManager: Errorable {
         super.init()
         audioInputOptions = MeetingMateModel.getAvailableDevices(mediaType: .audio)
         checkPermissions()
-#warning("Once started, passthrough node should be muted. Muting should not affect graph")
+        
+        if playerNodeMuted {
+            mutePlayerNode()
+        }
+        else {
+            unmutePlayerNode()
+        }
     }
     
     func checkPermissions() {
@@ -133,14 +141,15 @@ class AudioManager: Errorable {
             print("Error starting audio engine: \(error)")
         }
         
-        audioEngine.mainMixerNode.installTap(onBus: 0, bufferSize: UInt32(bufferSize), format: monoFormat) { [self] buffer, _ in
+        playerNode.installTap(onBus: 0, bufferSize: UInt32(bufferSize), format: monoFormat) { [self] buffer, _ in
             updateFFTMagnitudes(buffer: buffer)
         }
     }
     
     func startRecording() {
-        mutedBeforeRecording = passthroughMuted
-        passthroughMuted = true
+        isRecording = true
+        playerNodeMutedBackup = playerNodeMuted
+        mutePlayerNode()
         
         guard let audioRecorder = audioRecorder else { return }
         
@@ -171,19 +180,26 @@ class AudioManager: Errorable {
         
         let playbackCompletionHandler: AVAudioNodeCompletionHandler = {
             DispatchQueue.main.async {
-                self.passthroughMuted = self.mutedBeforeRecording
+                self.playerNodeMuted = self.playerNodeMutedBackup
+            }
+            
+            if self.playerNodeMutedBackup {
+                self.mutePlayerNode()
+            }
+            else {
+                self.unmutePlayerNode()
+            }
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
+                self.isRecording = false
             }
         }
         
-#warning("Correlate with mic sensitivity")
-        //        passthroughPlayerNode.volume = 0
-        //        recordingPlayerNode.volume = 1
+        unmutePlayerNode()
         playerNode.scheduleFile(audioFile, at: nil, completionHandler: playbackCompletionHandler)
         playerNode.play()
         
-        
-        
-        audioEngine.mainMixerNode.installTap(onBus: 0, bufferSize: UInt32(bufferSize), format: monoFormat) { [self] buffer, _ in
+        playerNode.installTap(onBus: 0, bufferSize: UInt32(bufferSize), format: monoFormat) { [self] buffer, _ in
             updateFFTMagnitudes(buffer: buffer)
         }
     }
@@ -211,7 +227,6 @@ class AudioManager: Errorable {
         }
         
         var normalizedMagnitudes = [Float](repeating: 0.0, count: Constants.audioBarCount)
-#warning("Add sensitivity to settings")
         var scalingFactor = Float(1)
         vDSP_vsmul(&magnitudes, 1, &scalingFactor, &normalizedMagnitudes, 1, UInt(Constants.audioBarCount))
         
@@ -219,33 +234,10 @@ class AudioManager: Errorable {
     }
     
     func updateFFTMagnitudes(buffer: AVAudioPCMBuffer) {
-        bufferQueue.sync {
-            
-            if let channelData = buffer.floatChannelData?[0] {
-                DispatchQueue.main.async { [self] in
-                    print("2")
-                    let fftSetup = vDSP_DFT_zop_CreateSetup(nil, UInt(self.bufferSize), vDSP_DFT_Direction.FORWARD)
-                    fftMagnitudes = fft(data: channelData, setup: fftSetup!)
-                }
-            }
-            else {
-                print("error")
-            }
-            
-        }
-    }
-}
-
-extension AudioManager: AVCaptureAudioDataOutputSampleBufferDelegate {
-    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-        if let buffer = createPCMBuffer(from: sampleBuffer) {
-            if passthroughMuted {
-                print("1")
-                updateFFTMagnitudes(buffer: buffer)
-            }
-            else {
-                buffers.append(buffer)
-                scheduleNextBuffer()
+        if let channelData = buffer.floatChannelData?[0] {
+            DispatchQueue.main.async { [self] in
+                let fftSetup = vDSP_DFT_zop_CreateSetup(nil, UInt(self.bufferSize), vDSP_DFT_Direction.FORWARD)
+                fftMagnitudes = fft(data: channelData, setup: fftSetup!)
             }
         }
         else {
@@ -253,10 +245,39 @@ extension AudioManager: AVCaptureAudioDataOutputSampleBufferDelegate {
         }
     }
     
+    func mutePlayerNode() {
+        playerNode.volume =  0
+        DispatchQueue.main.async {
+            self.playerNodeMuted = true
+        }
+    }
+    
+    func unmutePlayerNode() {
+        playerNode.volume =  1
+        DispatchQueue.main.async {
+            self.playerNodeMuted = false
+        }
+    }
+}
+
+extension AudioManager: AVCaptureAudioDataOutputSampleBufferDelegate {
+    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+        if !isRecording {
+            if let buffer = createPCMBuffer(from: sampleBuffer) {
+                buffers.append(buffer)
+                scheduleNextBuffer()
+            }
+            else {
+                print("error")
+            }
+        }
+    }
+    
     func scheduleNextBuffer() {
         bufferQueue.sync {
             if !buffers.isEmpty {
                 let nextBuffer = buffers.removeFirst()
+                
                 playerNode.scheduleBuffer(nextBuffer) {
                     self.scheduleNextBuffer()
                 }

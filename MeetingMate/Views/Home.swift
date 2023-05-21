@@ -16,7 +16,6 @@ struct Home: View {
 
         NavigationStack {
 
-//            AudioVisualizer()
             VStack(spacing: 10) {
 
                 VideoView(manager: model.videoManager)

@@ -42,10 +42,15 @@ struct AudioView: View {
                         
                         Button {
                             withAnimation {
-                                manager.passthroughMuted.toggle()
+                                if manager.playerNodeMuted {
+                                    manager.unmutePlayerNode()
+                                }
+                                else {
+                                    manager.mutePlayerNode()
+                                }
                             }
                         } label: {
-                            Image(systemName: manager.passthroughMuted ? "speaker.slash" : "speaker")
+                            Image(systemName: manager.playerNodeMuted ? "speaker.slash" : "speaker")
                         }
                         .frame(width: Constants.componentDetailHeight, height: Constants.componentDetailHeight)
                     }
