@@ -18,11 +18,11 @@ class AudioManager: Errorable {
     @Published var fftMagnitudes: [Float] = []
     @Published var permissionDenied = false
     @Published var playerNodeMuted = true
+    @Published var isRecording = false
     
     var captureDevice: AVCaptureDevice?
     
     private var captureSession: AVCaptureSession?
-    private var isRecording = false
     private var audioRecorder: AVCaptureAudioFileOutput?
     private var buffers: [AVAudioPCMBuffer] = []
     private var playerNodeMutedBackup = true
@@ -147,7 +147,9 @@ class AudioManager: Errorable {
     }
     
     func startRecording() {
-        isRecording = true
+        DispatchQueue.main.async {
+            self.isRecording = true
+        }
         playerNodeMutedBackup = playerNodeMuted
         mutePlayerNode()
         
@@ -179,18 +181,15 @@ class AudioManager: Errorable {
         let audioFile = try! AVAudioFile(forReading: recordingURL)
         
         let playbackCompletionHandler: AVAudioNodeCompletionHandler = {
-            DispatchQueue.main.async {
-                self.playerNodeMuted = self.playerNodeMutedBackup
-            }
-            
-            if self.playerNodeMutedBackup {
-                self.mutePlayerNode()
-            }
-            else {
-                self.unmutePlayerNode()
-            }
-            
             DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
+                self.playerNodeMuted = self.playerNodeMutedBackup
+                
+                if self.playerNodeMutedBackup {
+                    self.mutePlayerNode()
+                }
+                else {
+                    self.unmutePlayerNode()
+                }
                 self.isRecording = false
             }
         }
