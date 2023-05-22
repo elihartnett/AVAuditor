@@ -12,12 +12,10 @@ import Foundation
 class VideoManager: Errorable {
 
     @Published var videoInputOptions: [AVCaptureDevice]?
-    @Published var selectedVideoInputDeviceID = Constants.none
+    @Published var selectedVideoInputDeviceID = Constants.noneTag
     @Published var selectedVideoInputDevice: AVCaptureDevice?
     @Published var videoCaptureSession: AVCaptureSession?
-    
-    #warning("Add to settings")
-    @Published var avLayerVideoGravity: AVLayerVideoGravity = .resizeAspect
+    @Published var videoGravity: VideoGravity = .fit
 
     @Published var permissionDenied = false
 
@@ -48,7 +46,7 @@ class VideoManager: Errorable {
 
     func resetVideoManager() {
         videoInputOptions = MeetingMateModel.getAvailableDevices(mediaType: .video)
-        selectedVideoInputDeviceID = Constants.none
+        selectedVideoInputDeviceID = Constants.noneTag
         selectedVideoInputDevice = nil
         videoCaptureSession?.stopRunning()
         videoCaptureSession = nil

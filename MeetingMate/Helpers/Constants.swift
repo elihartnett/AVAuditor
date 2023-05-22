@@ -27,12 +27,16 @@ struct Constants {
     static let doubleMultiplier: CGFloat = 2.0
 
     static let emptyString = ""
-    static let none = "None"
+    static let noneTag = "None"
     static let quit = "Quit"
     static let quitShortcut = KeyboardShortcut("q")
     static let videoInput = "Video Input"
     static let audioInput = "Audio Input"
     static let permissionDenied = "Permission Denied"
+    static let scaleToFitTitle = "Fit"
+    static let scaleToFillTitle = "Fill"
+    static let scaleToFitTag = "scaleToFit"
+    static let scaleToFillTag = "scaleToFill"
 
     static let error = "Error"
     static let errorRecord = "Error: Failed to record."

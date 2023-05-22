@@ -17,8 +17,8 @@ struct VideoView: View {
 
             Picker(Constants.videoInput, selection: $manager.selectedVideoInputDeviceID) {
 
-                Text(Constants.none)
-                    .tag(Constants.none)
+                Text(Constants.noneTag)
+                    .tag(Constants.noneTag)
 
                 if !manager.permissionDenied {
                     ForEach(manager.videoInputOptions ?? [], id: \.self) { videoInputOption in
@@ -36,7 +36,7 @@ struct VideoView: View {
                     ProgressView()
                         .controlSize(.large)
 
-                    VideoInputPreview(captureSession: $manager.videoCaptureSession)
+                    VideoInputPreview(captureSession: $manager.videoCaptureSession, videoGravity: $manager.videoGravity)
                         .frame(height: Constants.componentHeight)
                         .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
                         .background(Material.ultraThick)

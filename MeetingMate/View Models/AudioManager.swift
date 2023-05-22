@@ -10,16 +10,17 @@ import Accelerate
 import AVKit
 import AVFoundation
 
-#warning("Add sensitivity")
+#warning("Memory constantly increasing")
 class AudioManager: Errorable {
     
     @Published var audioInputOptions: [AVCaptureDevice]?
-    @Published var selectedAudioInputDeviceID = Constants.none
+    @Published var selectedAudioInputDeviceID = Constants.noneTag
     @Published var fftMagnitudes: [Float] = []
     @Published var permissionDenied = false
     @Published var playerNodeMuted = true
     @Published var isRecording = false
-    
+    @Published var sensitivity: Float = 1
+
     var captureDevice: AVCaptureDevice?
     
     private var captureSession: AVCaptureSession?
@@ -66,30 +67,40 @@ class AudioManager: Errorable {
     
     func resetAudioManager() {
         audioInputOptions = MeetingMateModel.getAvailableDevices(mediaType: .audio)
-        selectedAudioInputDeviceID = Constants.none
+        selectedAudioInputDeviceID = Constants.noneTag
         fftMagnitudes = Array(repeating: Float(0), count: Constants.audioBarCount)
         permissionDenied = false
+        playerNodeMuted = true
+        isRecording = false
         
         captureDevice = nil
         
         captureSession = nil
         audioRecorder = nil
         buffers = []
-#warning("passthrough audio tap still in use when selected device is none")
+        playerNodeMutedBackup = true
+        
+        audioEngine.reset()
+        playerNode.reset()
+        playerNode.removeTap(onBus: 0)
     }
     
+#warning("dissconnecting iphone camera/mic can cause issues by putting app in weird state")
     func setSelectedAudioInputDevice() {
         audioInputOptions = MeetingMateModel.getAvailableDevices(mediaType: .audio)
         captureDevice = audioInputOptions?.first { $0.uniqueID == selectedAudioInputDeviceID }
         
-        if captureDevice != nil {
-            if permissionDenied {
-                resetAudioManager()
-            }
-            else {
-                setupCaptureSession()
-                setupPassthroughAudio()
-            }
+        guard captureDevice != nil else {
+            resetAudioManager()
+            return
+        }
+        
+        if permissionDenied {
+            resetAudioManager()
+        }
+        else {
+            setupCaptureSession()
+            setupPassthroughAudio()
         }
     }
     
@@ -100,6 +111,10 @@ class AudioManager: Errorable {
         guard let captureSession = captureSession else { return }
         guard let captureDevice = captureDevice else { return }
         guard let audioRecorder = audioRecorder else { return }
+        
+        if playerNodeMuted {
+            mutePlayerNode()
+        }
         
         do {
             let input = try AVCaptureDeviceInput(device: captureDevice)
@@ -226,7 +241,7 @@ class AudioManager: Errorable {
         }
         
         var normalizedMagnitudes = [Float](repeating: 0.0, count: Constants.audioBarCount)
-        var scalingFactor = Float(1)
+        var scalingFactor = 2 * sensitivity
         vDSP_vsmul(&magnitudes, 1, &scalingFactor, &normalizedMagnitudes, 1, UInt(Constants.audioBarCount))
         
         return normalizedMagnitudes
@@ -252,7 +267,7 @@ class AudioManager: Errorable {
     }
     
     func unmutePlayerNode() {
-        playerNode.volume =  1
+        playerNode.volume = sensitivity
         DispatchQueue.main.async {
             self.playerNodeMuted = false
         }

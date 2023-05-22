@@ -17,8 +17,8 @@ struct AudioView: View {
             
             Picker(Constants.audioInput, selection: $manager.selectedAudioInputDeviceID) {
                 
-                Text(Constants.none)
-                    .tag(Constants.none)
+                Text(Constants.noneTag)
+                    .tag(Constants.noneTag)
                 
                 if !manager.permissionDenied {
                     ForEach(manager.audioInputOptions ?? [], id: \.self) { audioInputOption in

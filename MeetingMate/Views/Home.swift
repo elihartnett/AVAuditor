@@ -35,7 +35,8 @@ struct Home: View {
                     Spacer()
 
                     NavigationLink {
-                        SettingsView()
+                        SettingsView(videoManager: model.videoManager, audioManager: model.audioManager)
+                            .padding()
                     } label: {
                         Image(systemName: Constants.settingsIconName)
                             .resizable()

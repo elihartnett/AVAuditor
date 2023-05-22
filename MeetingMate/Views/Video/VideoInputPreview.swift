@@ -10,6 +10,7 @@ import SwiftUI
 
 struct VideoInputPreview: NSViewRepresentable {
     @Binding var captureSession: AVCaptureSession?
+    @Binding var videoGravity: VideoGravity
 
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
@@ -25,12 +26,23 @@ struct VideoInputPreview: NSViewRepresentable {
         if context.coordinator.previewLayer?.session != captureSession {
             context.coordinator.updatePreviewLayer(for: nsView, with: captureSession)
         }
+        
+        switch videoGravity {
+        case .fit:
+            context.coordinator.previewLayer?.videoGravity = .resizeAspect
+        case .fill:
+            context.coordinator.previewLayer?.videoGravity = .resizeAspectFill
+        }
     }
 
+
     class Coordinator {
+        var parent: VideoInputPreview
         var previewLayer: AVCaptureVideoPreviewLayer?
 
-        init(_ selectedVideoInputMonitor: VideoInputPreview) {}
+        init(_ parent: VideoInputPreview) {
+            self.parent = parent
+        }
 
         func updatePreviewLayer(for nsView: NSView, with captureSession: AVCaptureSession?) {
             if let currentPreviewLayer = previewLayer {
@@ -43,7 +55,7 @@ struct VideoInputPreview: NSViewRepresentable {
 
             let newPreviewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
             newPreviewLayer.frame = viewLayer.bounds
-            newPreviewLayer.videoGravity = .resizeAspect
+
             viewLayer.addSublayer(newPreviewLayer)
             previewLayer = newPreviewLayer
         }
