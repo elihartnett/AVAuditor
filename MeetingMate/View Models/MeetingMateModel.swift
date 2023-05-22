@@ -36,6 +36,12 @@ class MeetingMateModel: ObservableObject {
             self?.showError = true
         }
         .store(in: &subscriptions)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(deviceWasDisconnected), name: NSNotification.Name.AVCaptureDeviceWasDisconnected, object: videoManager.captureSession)
+        NotificationCenter.default.addObserver(self, selector: #selector(deviceWasConnected), name: NSNotification.Name.AVCaptureDeviceWasConnected, object: videoManager.captureSession)
+                
+        NotificationCenter.default.addObserver(self, selector: #selector(deviceWasDisconnected), name: NSNotification.Name.AVCaptureDeviceWasDisconnected, object: audioManager.captureSession)
+        NotificationCenter.default.addObserver(self, selector: #selector(deviceWasConnected), name: NSNotification.Name.AVCaptureDeviceWasConnected, object: audioManager.captureSession)
     }
 
     static func getAvailableDevices(mediaType: AVMediaType) -> [AVCaptureDevice] {
@@ -49,5 +55,17 @@ class MeetingMateModel: ObservableObject {
         }
 
         return sortedDevices
+    }
+    
+    @objc
+    func deviceWasDisconnected(notification: NSNotification) {
+        videoManager.setSelectedVideoInputDevice()
+        audioManager.setSelectedAudioInputDevice()
+    }
+
+    @objc
+    func deviceWasConnected(notification: NSNotification) {
+        videoManager.setSelectedVideoInputDevice()
+        audioManager.setSelectedAudioInputDevice()
     }
 }

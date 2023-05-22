@@ -13,13 +13,11 @@ class VideoManager: Errorable {
 
     @Published var videoInputOptions: [AVCaptureDevice]?
     @Published var selectedVideoInputDeviceID = Constants.noneTag
-    @Published var selectedVideoInputDevice: AVCaptureDevice?
-    @Published var videoCaptureSession: AVCaptureSession?
+    @Published var captureDevice: AVCaptureDevice?
+    @Published var captureSession: AVCaptureSession?
     @Published var videoGravity: VideoGravity = .fit
 
     @Published var permissionDenied = false
-
-    private var timeoutTimer = Timer.scheduledTimer(timeInterval: Constants.halfMultiplier, target: VideoManager.self, selector: #selector(timeoutTimerHandler), userInfo: nil, repeats: false)
 
     override init() {
         super.init()
@@ -47,56 +45,42 @@ class VideoManager: Errorable {
     func resetVideoManager() {
         videoInputOptions = MeetingMateModel.getAvailableDevices(mediaType: .video)
         selectedVideoInputDeviceID = Constants.noneTag
-        selectedVideoInputDevice = nil
-        videoCaptureSession?.stopRunning()
-        videoCaptureSession = nil
-        timeoutTimer.invalidate()
+        captureDevice = nil
+        captureSession?.stopRunning()
+        captureSession = nil
     }
 
     func setSelectedVideoInputDevice() {
         videoInputOptions = MeetingMateModel.getAvailableDevices(mediaType: .video)
 
-        selectedVideoInputDevice = videoInputOptions?.first { $0.uniqueID == selectedVideoInputDeviceID }
-
-        if selectedVideoInputDevice != nil {
-            if !permissionDenied {
-                setupCaptureSession()
-            }
-        } else {
+        captureDevice = videoInputOptions?.first { $0.uniqueID == selectedVideoInputDeviceID }
+        
+        guard captureDevice != nil || permissionDenied else {
             resetVideoManager()
+            return
         }
+        
+        setupCaptureSession()
     }
 
     func setupCaptureSession() {
         DispatchQueue.global(qos: .userInitiated).async { [self] in
             let captureSession = AVCaptureSession()
 
-            guard let videoDevice = selectedVideoInputDevice, let videoInput = try? AVCaptureDeviceInput(device: videoDevice) else {
+            guard let videoDevice = captureDevice, let videoInput = try? AVCaptureDeviceInput(device: videoDevice) else {
                 return
             }
 
             captureSession.addInput(videoInput)
 
             let videoOutput = AVCaptureVideoDataOutput()
-            videoOutput.setSampleBufferDelegate(self, queue: DispatchQueue(label: "test"))
             captureSession.addOutput(videoOutput)
 
             captureSession.startRunning()
 
             DispatchQueue.main.async {
-                self.videoCaptureSession = captureSession
+                self.captureSession = captureSession
             }
         }
-    }
-}
-
-extension VideoManager: AVCaptureVideoDataOutputSampleBufferDelegate {
-    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-        timeoutTimer.invalidate()
-    }
-
-    @objc private func timeoutTimerHandler() {
-        errorMessage = Constants.errorRecord
-        resetVideoManager()
     }
 }

@@ -22,8 +22,8 @@ class AudioManager: Errorable {
     @Published var sensitivity: Float = 1
 
     var captureDevice: AVCaptureDevice?
-    
-    private var captureSession: AVCaptureSession?
+    var captureSession: AVCaptureSession?
+
     private var audioRecorder: AVCaptureAudioFileOutput?
     private var buffers: [AVAudioPCMBuffer] = []
     private var playerNodeMutedBackup = true
@@ -85,23 +85,17 @@ class AudioManager: Errorable {
         playerNode.removeTap(onBus: 0)
     }
     
-#warning("dissconnecting iphone camera/mic can cause issues by putting app in weird state")
     func setSelectedAudioInputDevice() {
         audioInputOptions = MeetingMateModel.getAvailableDevices(mediaType: .audio)
         captureDevice = audioInputOptions?.first { $0.uniqueID == selectedAudioInputDeviceID }
         
-        guard captureDevice != nil else {
+        guard captureDevice != nil || permissionDenied else {
             resetAudioManager()
             return
         }
         
-        if permissionDenied {
-            resetAudioManager()
-        }
-        else {
-            setupCaptureSession()
-            setupPassthroughAudio()
-        }
+        setupCaptureSession()
+        setupPassthroughAudio()
     }
     
     func setupCaptureSession() {

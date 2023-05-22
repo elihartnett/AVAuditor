@@ -31,12 +31,12 @@ struct VideoView: View {
                 manager.setSelectedVideoInputDevice()
             }
 
-            if manager.selectedVideoInputDevice != nil {
+            if manager.captureDevice != nil {
                 ZStack {
                     ProgressView()
                         .controlSize(.large)
 
-                    VideoInputPreview(captureSession: $manager.videoCaptureSession, videoGravity: $manager.videoGravity)
+                    VideoInputPreview(captureSession: $manager.captureSession, videoGravity: $manager.videoGravity)
                         .frame(height: Constants.componentHeight)
                         .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
                         .background(Material.ultraThick)
