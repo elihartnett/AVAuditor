@@ -10,7 +10,6 @@ import Accelerate
 import AVKit
 import AVFoundation
 
-#warning("Memory constantly increasing")
 class AudioManager: Errorable {
     
     @Published var audioInputOptions: [AVCaptureDevice]?
@@ -31,9 +30,9 @@ class AudioManager: Errorable {
     private let recordingURL = URL.documentsDirectory.appendingPathComponent(Constants.recordingFileName)
     private let audioEngine = AVAudioEngine()
     private let playerNode = AVAudioPlayerNode()
-    private let bufferSize = 1024
-    private let monoFormat = AVAudioFormat(standardFormatWithSampleRate: 48000, channels: 1)
+    private let audioFormat = AVAudioFormat(standardFormatWithSampleRate: 48000, channels: 1)
     private let bufferQueue = DispatchQueue(label: "com.MeetingMate.BufferAccessQueue")
+    private let fftSetup = vDSP_DFT_zop_CreateSetup(nil, UInt(Constants.audioBufferSize), vDSP_DFT_Direction.FORWARD)
     
     override init() {
         super.init()
@@ -83,9 +82,12 @@ class AudioManager: Errorable {
         audioEngine.reset()
         playerNode.reset()
         playerNode.removeTap(onBus: 0)
+        #warning("Should that order be reversed?")
     }
     
     func setSelectedAudioInputDevice() {
+        #warning("is this needed")
+//        let selectedAudioInputDeviceIDBackup = selectedAudioInputDeviceID
         audioInputOptions = MeetingMateModel.getAvailableDevices(mediaType: .audio)
         captureDevice = audioInputOptions?.first { $0.uniqueID == selectedAudioInputDeviceID }
         
@@ -140,8 +142,8 @@ class AudioManager: Errorable {
     
     func setupPassthroughAudio() {
         audioEngine.attach(playerNode)
-        audioEngine.connect(playerNode, to: audioEngine.mainMixerNode, format: monoFormat)
-        audioEngine.connect(audioEngine.mainMixerNode, to: audioEngine.outputNode, format: monoFormat)
+        audioEngine.connect(playerNode, to: audioEngine.mainMixerNode, format: audioFormat)
+        audioEngine.connect(audioEngine.mainMixerNode, to: audioEngine.outputNode, format: audioFormat)
         
         do {
             try audioEngine.start()
@@ -150,7 +152,7 @@ class AudioManager: Errorable {
             print("Error starting audio engine: \(error)")
         }
         
-        playerNode.installTap(onBus: 0, bufferSize: UInt32(bufferSize), format: monoFormat) { [self] buffer, _ in
+        playerNode.installTap(onBus: 0, bufferSize: UInt32(Constants.audioBufferSize), format: audioFormat) { [self] buffer, _ in
             updateFFTMagnitudes(buffer: buffer)
         }
     }
@@ -184,8 +186,8 @@ class AudioManager: Errorable {
     
     func playRecording() {
         audioEngine.attach(playerNode)
-        audioEngine.connect(playerNode, to: audioEngine.mainMixerNode, format: monoFormat)
-        audioEngine.connect(audioEngine.mainMixerNode, to: audioEngine.outputNode, format: monoFormat)
+        audioEngine.connect(playerNode, to: audioEngine.mainMixerNode, format: audioFormat)
+        audioEngine.connect(audioEngine.mainMixerNode, to: audioEngine.outputNode, format: audioFormat)
         
         let audioFile = try! AVAudioFile(forReading: recordingURL)
         
@@ -207,19 +209,19 @@ class AudioManager: Errorable {
         playerNode.scheduleFile(audioFile, at: nil, completionHandler: playbackCompletionHandler)
         playerNode.play()
         
-        playerNode.installTap(onBus: 0, bufferSize: UInt32(bufferSize), format: monoFormat) { [self] buffer, _ in
+        playerNode.installTap(onBus: 0, bufferSize: UInt32(Constants.audioBufferSize), format: audioFormat) { [self] buffer, _ in
             updateFFTMagnitudes(buffer: buffer)
         }
     }
     
     // Fast Fourier Transform
     func fft(data: UnsafeMutablePointer<Float>, setup: OpaquePointer) -> [Float] {
-        var realIn = [Float](repeating: 0, count: bufferSize)
-        var imagIn = [Float](repeating: 0, count: bufferSize)
-        var realOut = [Float](repeating: 0, count: bufferSize)
-        var imagOut = [Float](repeating: 0, count: bufferSize)
+        var realIn = [Float](repeating: 0, count: Constants.audioBufferSize)
+        var imagIn = [Float](repeating: 0, count: Constants.audioBufferSize)
+        var realOut = [Float](repeating: 0, count: Constants.audioBufferSize)
+        var imagOut = [Float](repeating: 0, count: Constants.audioBufferSize)
         
-        for i in 0 ..< bufferSize {
+        for i in 0 ..< Constants.audioBufferSize {
             realIn[i] = data[i]
         }
         
@@ -242,14 +244,14 @@ class AudioManager: Errorable {
     }
     
     func updateFFTMagnitudes(buffer: AVAudioPCMBuffer) {
-        if let channelData = buffer.floatChannelData?[0] {
-            DispatchQueue.main.async { [self] in
-                let fftSetup = vDSP_DFT_zop_CreateSetup(nil, UInt(self.bufferSize), vDSP_DFT_Direction.FORWARD)
-                fftMagnitudes = fft(data: channelData, setup: fftSetup!)
-            }
-        }
-        else {
+        guard let channelData = buffer.floatChannelData?[0] else {
             print("error")
+            return
+        }
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            fftMagnitudes = fft(data: channelData, setup: fftSetup!)
         }
     }
     
@@ -302,9 +304,25 @@ extension AudioManager: AVCaptureAudioDataOutputSampleBufferDelegate {
     func createPCMBuffer(from sampleBuffer: CMSampleBuffer) -> AVAudioPCMBuffer? {
         let numSamples = AVAudioFrameCount(sampleBuffer.numSamples)
         let format = AVAudioFormat(cmAudioFormatDescription: sampleBuffer.formatDescription!)
-        
-        let pcmBuffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: numSamples)!
+        var pcmBuffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: numSamples)!
         pcmBuffer.frameLength = numSamples
+        
+        if pcmBuffer.format != audioFormat {
+            guard let converter = AVAudioConverter(from: pcmBuffer.format, to: audioFormat!) else {
+                print("error")
+                return nil
+            }
+            
+            do {
+                let correctBuffer = AVAudioPCMBuffer(pcmFormat: audioFormat!, frameCapacity: numSamples)!
+                try converter.convert(to: correctBuffer, from: pcmBuffer)
+                pcmBuffer = correctBuffer
+            }
+            catch {
+                print("error")
+            }
+        }
+        
         CMSampleBufferCopyPCMDataIntoAudioBufferList(sampleBuffer, at: 0, frameCount: Int32(numSamples), into: pcmBuffer.mutableAudioBufferList)
         return pcmBuffer
     }

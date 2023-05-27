@@ -49,11 +49,13 @@ class MeetingMateModel: ObservableObject {
         let audioDeviceTypes: [AVCaptureDevice.DeviceType] = [.builtInMicrophone, .externalUnknown]
 
         let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: mediaType == .video ? videoDeviceTypes : audioDeviceTypes, mediaType: mediaType, position: .unspecified)
-        let devices = discoverySession.devices
-        let sortedDevices = devices.sorted { lhs, rhs in
+        var discoveredDevices = discoverySession.devices
+        discoveredDevices.removeAll(where: { $0.localizedName.contains(Constants.CADefaultDeviceAggregate)})
+    
+        let sortedDevices = discoveredDevices.sorted { lhs, rhs in
             lhs.localizedName.localizedCompare(rhs.localizedName) == .orderedAscending
         }
-
+        
         return sortedDevices
     }
     

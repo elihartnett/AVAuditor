@@ -13,6 +13,7 @@ struct Constants {
     static let settingsIconName = "gearshape"
     static let recordingFileName = "recording.m4a"
     static let audioQueueName = "MeetingMateAudioManagerQueue"
+    static let CADefaultDeviceAggregate = "CADefaultDeviceAggregate"
 
     static let componentHeight: CGFloat = 200
     static let componentDetailHeight: CGFloat = 20
@@ -25,6 +26,7 @@ struct Constants {
     static let halfMultiplier: CGFloat = 0.5
     static let wholeMultiplier: CGFloat = 1.0
     static let doubleMultiplier: CGFloat = 2.0
+    static let audioBufferSize = 1024
 
     static let emptyString = ""
     static let noneTag = "None"
