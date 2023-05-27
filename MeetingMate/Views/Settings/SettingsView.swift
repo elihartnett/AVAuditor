@@ -40,7 +40,7 @@ struct SettingsView: View {
                     if let url = URL(string: "mailto:") {
                         NSWorkspace.shared.open(url)
                     } else {
-                        print("error")
+                        print("error: \(Constants.errorCreateEmail)")
                     }
                 } label: {
                     Text("Submit Feedback")

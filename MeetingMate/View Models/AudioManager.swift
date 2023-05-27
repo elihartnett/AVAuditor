@@ -65,6 +65,7 @@ class AudioManager: Errorable {
     }
     
     func resetAudioManager() {
+        errorMessage = Constants.emptyString
         audioInputOptions = MeetingMateModel.getAvailableDevices(mediaType: .audio)
         selectedAudioInputDeviceID = Constants.noneTag
         fftMagnitudes = Array(repeating: Float(0), count: Constants.audioBarCount)
@@ -117,13 +118,13 @@ class AudioManager: Errorable {
             if captureSession.canAddInput(input) {
                 captureSession.addInput(input)
             } else {
-                errorMessage = Constants.errorAddInput
+                setErrorMessage(error: Constants.errorAddInput)
             }
             
             if captureSession.canAddOutput(audioRecorder) {
                 captureSession.addOutput(audioRecorder)
             } else {
-                errorMessage = Constants.errorAddOutput
+                setErrorMessage(error: Constants.errorAddOutput)
             }
             
             let output = AVCaptureAudioDataOutput()
@@ -131,12 +132,12 @@ class AudioManager: Errorable {
             if captureSession.canAddOutput(output) {
                 captureSession.addOutput(output)
             } else {
-                errorMessage = Constants.errorAddOutput
+                setErrorMessage(error: Constants.errorAddOutput)
             }
             
             captureSession.startRunning()
         } catch {
-            errorMessage = Constants.error
+            setErrorMessage(error: Constants.error)
         }
     }
     
@@ -148,8 +149,9 @@ class AudioManager: Errorable {
         do {
             try audioEngine.start()
         } catch {
-#warning("show all printed errors")
-            print("Error starting audio engine: \(error)")
+            DispatchQueue.main.async {
+                self.errorMessage = Constants.errorStartPassthrough
+            }
         }
         
         playerNode.installTap(onBus: 0, bufferSize: UInt32(Constants.audioBufferSize), format: audioFormat) { [self] buffer, _ in
@@ -170,7 +172,7 @@ class AudioManager: Errorable {
             do {
                 try FileManager.default.removeItem(at: recordingURL)
             } catch {
-                errorMessage = Constants.errorRecord
+                setErrorMessage(error: Constants.errorRecord)
                 return
             }
         }
@@ -245,7 +247,7 @@ class AudioManager: Errorable {
     
     func updateFFTMagnitudes(buffer: AVAudioPCMBuffer) {
         guard let channelData = buffer.floatChannelData?[0] else {
-            print("error")
+            setErrorMessage(error: Constants.errorBufferChannelData)
             return
         }
         
@@ -268,6 +270,12 @@ class AudioManager: Errorable {
             self.playerNodeMuted = false
         }
     }
+    
+    func setErrorMessage(error: String) {
+        DispatchQueue.main.async {
+            self.errorMessage = error
+        }
+    }
 }
 
 extension AudioManager: AVCaptureAudioDataOutputSampleBufferDelegate {
@@ -278,7 +286,7 @@ extension AudioManager: AVCaptureAudioDataOutputSampleBufferDelegate {
                 scheduleNextBuffer()
             }
             else {
-                print("error")
+                setErrorMessage(error: Constants.errorCreateBuffer)
             }
         }
     }
@@ -309,7 +317,7 @@ extension AudioManager: AVCaptureAudioDataOutputSampleBufferDelegate {
         
         if pcmBuffer.format != audioFormat {
             guard let converter = AVAudioConverter(from: pcmBuffer.format, to: audioFormat!) else {
-                print("error")
+                setErrorMessage(error: Constants.errorCreateConverter)
                 return nil
             }
             
@@ -319,7 +327,7 @@ extension AudioManager: AVCaptureAudioDataOutputSampleBufferDelegate {
                 pcmBuffer = correctBuffer
             }
             catch {
-                print("error")
+                setErrorMessage(error: Constants.errorConvertAudio)
             }
         }
         
@@ -331,7 +339,7 @@ extension AudioManager: AVCaptureAudioDataOutputSampleBufferDelegate {
 extension AudioManager: AVCaptureFileOutputRecordingDelegate {
     func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
         guard error == nil else {
-            errorMessage = Constants.errorRecord
+            setErrorMessage(error: Constants.errorRecord)
             return
         }
         playRecording()

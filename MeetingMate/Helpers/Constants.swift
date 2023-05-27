@@ -41,7 +41,13 @@ struct Constants {
     static let scaleToFillTag = "scaleToFill"
 
     static let error = "Error"
-    static let errorRecord = "Error: Failed to record."
-    static let errorAddInput = "Error: Failed to add input."
-    static let errorAddOutput = "Error: Failed to add output."
+    static let errorRecord = "Error: Failed to record"
+    static let errorAddInput = "Error: Failed to add input"
+    static let errorAddOutput = "Error: Failed to add output"
+    static let errorStartPassthrough = "Error: Failed to start passthrough"
+    static let errorBufferChannelData = "Error: Failed to get buffer channel data"
+    static let errorCreateBuffer = "Error: Failed to create buffer"
+    static let errorCreateConverter = "Error: Failed to create audio converter"
+    static let errorConvertAudio = "Error: Failed to convert audio"
+    static let errorCreateEmail = "Error: Failed to create email"
 }
