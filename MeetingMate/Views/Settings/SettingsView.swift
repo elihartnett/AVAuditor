@@ -30,12 +30,6 @@ struct SettingsView: View {
                 
                 Text("Version \(Bundle.main.shortVersion)")
                 
-                Button(action: {
-                    NSWorkspace.shared.open(URL(string: "mailto:")!)
-                }) {
-                    Text("Open Email App")
-                }
-                
                 Button {
                     if let url = URL(string: "mailto:") {
                         NSWorkspace.shared.open(url)
@@ -87,7 +81,7 @@ struct SettingsView: View {
             HStack {
                 Slider(value: $audioManager.sensitivity, in: 0...2, step: 0.25)
                 
-                Text("\(formatter.string(from: NSNumber(floatLiteral: Double(audioManager.sensitivity)))!)x")
+                Text("\(formatter.string(from: NSNumber(floatLiteral: Double(audioManager.sensitivity))) ?? "0.00")x")
                     .monospaced()
             }
         }
