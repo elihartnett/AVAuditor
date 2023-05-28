@@ -19,18 +19,18 @@ class AudioManager: Errorable {
     @Published var playerNodeMuted = true
     @Published var isRecording = false
     @Published var sensitivity: Float = 1
-
+    
     var captureDevice: AVCaptureDevice?
     var captureSession: AVCaptureSession?
-
+    
     private var audioRecorder: AVCaptureAudioFileOutput?
     private var buffers: [AVAudioPCMBuffer] = []
     private var playerNodeMutedBackup = true
-    
+
     private let recordingURL = URL.documentsDirectory.appendingPathComponent(Constants.recordingFileName)
     private let audioEngine = AVAudioEngine()
     private let playerNode = AVAudioPlayerNode()
-    private let audioFormat = AVAudioFormat(standardFormatWithSampleRate: 48000, channels: 1)
+    private let audioFormat = AVAudioFormat(standardFormatWithSampleRate: 48000, channels: 2)
     private let bufferQueue = DispatchQueue(label: "com.MeetingMate.BufferAccessQueue")
     private let fftSetup = vDSP_DFT_zop_CreateSetup(nil, UInt(Constants.audioBufferSize), vDSP_DFT_Direction.FORWARD)
     
@@ -45,6 +45,9 @@ class AudioManager: Errorable {
         else {
             unmutePlayerNode()
         }
+        
+        setupCaptureSession()
+        setupPassthroughAudio()
     }
     
     func checkPermissions() {
@@ -65,40 +68,54 @@ class AudioManager: Errorable {
     }
     
     func resetAudioManager() {
-        errorMessage = Constants.emptyString
-        audioInputOptions = MeetingMateModel.getAvailableDevices(mediaType: .audio)
-        selectedAudioInputDeviceID = Constants.noneTag
-        fftMagnitudes = Array(repeating: Float(0), count: Constants.audioBarCount)
-        permissionDenied = false
-        playerNodeMuted = true
-        isRecording = false
-        
-        captureDevice = nil
-        
-        captureSession = nil
-        audioRecorder = nil
-        buffers = []
-        playerNodeMutedBackup = true
-        
-        audioEngine.reset()
-        playerNode.reset()
-        playerNode.removeTap(onBus: 0)
-        #warning("Should that order be reversed?")
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            
+            self.errorMessage = Constants.emptyString
+            self.audioInputOptions = MeetingMateModel.getAvailableDevices(mediaType: .audio)
+            self.selectedAudioInputDeviceID = Constants.noneTag
+            self.fftMagnitudes = Array(repeating: Float(0), count: Constants.audioBarCount)
+            self.permissionDenied = false
+            self.playerNodeMuted = true
+            self.isRecording = false
+            
+            self.captureDevice = nil
+            
+            self.captureSession = nil
+            self.audioRecorder = nil
+            self.buffers = []
+            self.playerNodeMutedBackup = true
+            
+            self.playerNode.reset()
+            self.playerNode.removeTap(onBus: 0)
+            self.audioEngine.reset()
+        }
     }
     
     func setSelectedAudioInputDevice() {
-        #warning("is this needed")
-//        let selectedAudioInputDeviceIDBackup = selectedAudioInputDeviceID
-        audioInputOptions = MeetingMateModel.getAvailableDevices(mediaType: .audio)
-        captureDevice = audioInputOptions?.first { $0.uniqueID == selectedAudioInputDeviceID }
-        
-        guard captureDevice != nil || permissionDenied else {
+        guard !permissionDenied else {
             resetAudioManager()
             return
         }
         
-        setupCaptureSession()
-        setupPassthroughAudio()
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.audioInputOptions = MeetingMateModel.getAvailableDevices(mediaType: .audio)
+        }
+        captureDevice = audioInputOptions?.first { $0.uniqueID == selectedAudioInputDeviceID }
+        
+        guard let captureDevice else {
+            resetAudioManager()
+            return
+        }
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.fftMagnitudes = Array(repeating: Float(0), count: Constants.audioBarCount)
+            setupCaptureSession()
+            setupPassthroughAudio()
+        }
+
     }
     
     func setupCaptureSession() {
@@ -128,6 +145,7 @@ class AudioManager: Errorable {
             }
             
             let output = AVCaptureAudioDataOutput()
+#warning("Get queue strings out")
             output.setSampleBufferDelegate(self, queue: DispatchQueue(label: "com.MeetingMate.PassthroughAudioQueue"))
             if captureSession.canAddOutput(output) {
                 captureSession.addOutput(output)
@@ -154,6 +172,7 @@ class AudioManager: Errorable {
             }
         }
         
+        playerNode.removeTap(onBus: 0)
         playerNode.installTap(onBus: 0, bufferSize: UInt32(Constants.audioBufferSize), format: audioFormat) { [self] buffer, _ in
             updateFFTMagnitudes(buffer: buffer)
         }
@@ -210,10 +229,6 @@ class AudioManager: Errorable {
         unmutePlayerNode()
         playerNode.scheduleFile(audioFile, at: nil, completionHandler: playbackCompletionHandler)
         playerNode.play()
-        
-        playerNode.installTap(onBus: 0, bufferSize: UInt32(Constants.audioBufferSize), format: audioFormat) { [self] buffer, _ in
-            updateFFTMagnitudes(buffer: buffer)
-        }
     }
     
     // Fast Fourier Transform
@@ -294,12 +309,16 @@ extension AudioManager: AVCaptureAudioDataOutputSampleBufferDelegate {
     func scheduleNextBuffer() {
         bufferQueue.sync {
             if !buffers.isEmpty {
-                let nextBuffer = buffers.removeFirst()
+                var nextBuffer = buffers.removeFirst()
+                
+                if nextBuffer.format != audioFormat {
+                    #warning("look for all force unwraps")
+                    nextBuffer = convertBuffer(nextBuffer, to: audioFormat!)!
+                }
                 
                 playerNode.scheduleBuffer(nextBuffer) {
                     self.scheduleNextBuffer()
                 }
-                
                 if !audioEngine.isRunning {
                     try! audioEngine.start()
                 }
@@ -312,27 +331,34 @@ extension AudioManager: AVCaptureAudioDataOutputSampleBufferDelegate {
     func createPCMBuffer(from sampleBuffer: CMSampleBuffer) -> AVAudioPCMBuffer? {
         let numSamples = AVAudioFrameCount(sampleBuffer.numSamples)
         let format = AVAudioFormat(cmAudioFormatDescription: sampleBuffer.formatDescription!)
-        var pcmBuffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: numSamples)!
+        let pcmBuffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: numSamples)!
         pcmBuffer.frameLength = numSamples
-        
-        if pcmBuffer.format != audioFormat {
-            guard let converter = AVAudioConverter(from: pcmBuffer.format, to: audioFormat!) else {
-                setErrorMessage(error: Constants.errorCreateConverter)
-                return nil
-            }
-            
-            do {
-                let correctBuffer = AVAudioPCMBuffer(pcmFormat: audioFormat!, frameCapacity: numSamples)!
-                try converter.convert(to: correctBuffer, from: pcmBuffer)
-                pcmBuffer = correctBuffer
-            }
-            catch {
-                setErrorMessage(error: Constants.errorConvertAudio)
-            }
-        }
-        
         CMSampleBufferCopyPCMDataIntoAudioBufferList(sampleBuffer, at: 0, frameCount: Int32(numSamples), into: pcmBuffer.mutableAudioBufferList)
         return pcmBuffer
+    }
+    
+    func convertBuffer(_ buffer: AVAudioPCMBuffer, to format: AVAudioFormat) -> AVAudioPCMBuffer? {
+        guard let converter = AVAudioConverter(from: buffer.format, to: format) else {
+            #warning("Need to log all new errors where guards are")
+            return nil
+        }
+
+        let ratio = format.sampleRate / buffer.format.sampleRate
+        let newBuffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: buffer.frameCapacity * UInt32(ratio))!
+        let inputBlock: AVAudioConverterInputBlock = { inNumPackets, outStatus in
+            outStatus.pointee = .haveData
+            return buffer
+        }
+
+        var error: NSError?
+        converter.convert(to: newBuffer, error: &error, withInputFrom: inputBlock)
+
+        if let error = error {
+            print("Error during format conversion: \(error.localizedDescription)")
+            return nil
+        }
+        
+        return newBuffer
     }
 }
 
