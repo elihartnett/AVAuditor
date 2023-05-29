@@ -14,7 +14,7 @@ struct Home: View {
 
     var body: some View {
 
-        NavigationStack {
+        NavigationStack(path: $model.navigationPath) {
 
             VStack(spacing: 10) {
 
@@ -34,9 +34,8 @@ struct Home: View {
 
                     Spacer()
 
-                    NavigationLink {
-                        SettingsView(videoManager: model.videoManager, audioManager: model.audioManager)
-                            .padding()
+                    Button {
+                        model.navigationPath.append(NavigableViews.settings)
                     } label: {
                         Image(systemName: Constants.settingsIconName)
                             .resizable()
@@ -47,6 +46,12 @@ struct Home: View {
                 }
             }
             .padding()
+            .navigationDestination(for: NavigableViews.self) { navigableView in
+                switch navigableView {
+                case .settings:
+                    SettingsView(videoManager: model.videoManager, audioManager: model.audioManager).padding()
+                }
+            }
         }
     }
 }

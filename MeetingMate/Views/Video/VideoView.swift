@@ -9,6 +9,8 @@ import SwiftUI
 
 struct VideoView: View {
 
+    @EnvironmentObject var meetingMateModel: MeetingMateModel
+    
     @ObservedObject var manager: VideoManager
 
     var body: some View {
@@ -37,7 +39,7 @@ struct VideoView: View {
                         .controlSize(.large)
 
                     VideoInputPreview(captureSession: $manager.captureSession, videoGravity: $manager.videoGravity)
-                        .frame(height: Constants.componentHeight)
+                        .frame(height: meetingMateModel.navigationPath.contains(NavigableViews.settings) ? 0 : Constants.componentHeight)
                         .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
                         .background(Material.ultraThick)
                         .cornerRadius(Constants.componentCornerRadius)

@@ -8,11 +8,14 @@
 import AVKit
 import Combine
 import Foundation
+import IOKit
+import SwiftUI
 
 class MeetingMateModel: ObservableObject {
+    
+    @Published var navigationPath = [NavigableViews]()
 
     @Published var videoManager: VideoManager
-
     @Published var audioManager: AudioManager
 
     @Published var showError = false
@@ -69,5 +72,20 @@ class MeetingMateModel: ObservableObject {
     func deviceWasConnected(notification: NSNotification) {
         videoManager.setSelectedVideoInputDevice()
         audioManager.setSelectedAudioInputDevice()
+    }
+    
+    func getDeviceInformation() -> String {
+        let videoDevice = videoManager.captureDevice?.activeFormat.formatDescription as Any?
+        let audioDevice = audioManager.captureDevice?.activeFormat.formatDescription as Any?
+        let appVersion = Bundle.main.fullVersion
+        
+        return """
+        -----------------------------
+        Video device: \(videoDevice ?? Constants.noneTag)
+        Audio device: \(audioDevice ?? Constants.noneTag)
+        App Version: \(appVersion)
+        -----------------------------
+        \n
+        """
     }
 }

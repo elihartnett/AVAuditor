@@ -17,15 +17,6 @@ extension Bundle {
             return ""
         }
     }
-
-    var buildVersion: String {
-        if let result = infoDictionary?["CFBundleVersion"] as? String {
-            return result
-        } else {
-            assert(false)
-            return ""
-        }
-    }
-
-    var fullVersion: String { "\(shortVersion) (\(buildVersion))" }
+    
+    var fullVersion: String { "\(shortVersion)"}
 }

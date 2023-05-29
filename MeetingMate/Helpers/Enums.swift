@@ -39,3 +39,7 @@ enum VideoGravity: Identifiable, CaseIterable {
         }
     }
 }
+
+enum NavigableViews: Hashable {
+    case settings
+}

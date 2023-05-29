@@ -7,10 +7,11 @@
 
 import SwiftUI
 
-#warning("Remove all strings from view")
 struct SettingsView: View {
     
     @Environment(\.openURL) private var openURL
+    
+    @EnvironmentObject var meetingMateModel: MeetingMateModel
     
     @ObservedObject var videoManager: VideoManager
     @ObservedObject var audioManager: AudioManager
@@ -18,43 +19,44 @@ struct SettingsView: View {
     var body: some View {
         
         VStack(alignment: .leading) {
-            Form {
-                
-                videoSettings
-                
-                Divider()
-                
-                audioSettings
-                
-                Divider()
-                
-                Text("Version \(Bundle.main.shortVersion)")
-                
-                Button {
-                    if let url = URL(string: "mailto:") {
-                        NSWorkspace.shared.open(url)
-                    } else {
-                        print("error: \(Constants.errorCreateEmail)")
-                    }
-                } label: {
-                    Text("Submit Feedback")
+            
+            videoSettings
+            
+            Divider()
+            
+            audioSettings
+            
+            Divider()
+            
+            Text("\(Constants.version) \(Bundle.main.fullVersion)")
+            
+            Button {
+                let emailAddress = Constants.emailAddress
+                let subject = Constants.meetingMateFeedback
+                let bodyText = meetingMateModel.getDeviceInformation()
+                if let url = URL(string: "mailto:\(emailAddress)?subject=\(subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&body=\(bodyText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")") {
+                    NSWorkspace.shared.open(url)
+                } else {
+                    #warning("Remove prints")
+                    print("error: \(Constants.errorCreateEmail)")
                 }
-                
-                Button(Constants.quit) {
-                    NSApplication.shared.terminate(nil)
-                }
-                .keyboardShortcut(Constants.quitShortcut)
+            } label: {
+                Text(Constants.submitFeedback)
             }
             
+            Button(Constants.quit) {
+                NSApplication.shared.terminate(nil)
+            }
+            .keyboardShortcut(Constants.quitShortcut)
         }
     }
     
     var videoSettings: some View {
         VStack(alignment: .leading) {
-            Text("Video Settings")
+            Text(Constants.videoSettings)
                 .bold()
             
-            Picker("Scale", selection: $videoManager.videoGravity) {
+            Picker(Constants.scale, selection: $videoManager.videoGravity) {
                 ForEach(VideoGravity.allCases, id: \.self) { videoGravityCase in
                     Text(videoGravityCase.title)
                         .tag(videoGravityCase.tag)
@@ -63,6 +65,7 @@ struct SettingsView: View {
             .pickerStyle(.segmented)
             .labelsHidden()
         }
+        .frame(maxWidth: .infinity)
     }
     
     var audioSettings: some View {
@@ -75,41 +78,24 @@ struct SettingsView: View {
         }()
         
         return VStack(alignment: .leading) {
-            Text("Audio Sensitivity")
+            Text(Constants.audioSettings)
                 .bold()
+                .fixedSize()
             
             HStack {
-                Slider(value: $audioManager.sensitivity, in: 0...2, step: 0.25)
+                Rectangle()
+                    .fill(.clear)
+                    .frame(height: 1)
+                    .overlay {
+                        Slider(value: $audioManager.sensitivity, in: 0...2, step: 0.25)
+                            .labelsHidden()
+                    }
                 
                 Text("\(formatter.string(from: NSNumber(floatLiteral: Double(audioManager.sensitivity))) ?? "0.00")x")
                     .monospaced()
             }
         }
     }
-    
-    //    var submitFeedbackButton: some View {
-    //        Button {
-    //            if EmailViewRepresentable.canSendEmail() {
-    //                showEmailVIew = true
-    //            } else {
-    //                if let url = URL(string: "mailto:\(Strings.emailAddress)") {
-    //                    alertTitle = Strings.failedToOpenEmailURLErrorMessage
-    //                    showAlert = true
-    //                    if UIApplication.shared.canOpenURL(url) {
-    //                        UIApplication.shared.open(url)
-    //                    } else {
-    //                        alertTitle = Strings.failedToOpenEmailURLErrorMessage
-    //                        showAlert = true
-    //                    }
-    //                } else {
-    //                    alertTitle = Strings.failedToCreateEmailURLErrorMessage
-    //                    showAlert = true
-    //                }
-    //            }
-    //        } label: {
-    //            Text(Strings.submitFeedbackLabel)
-    //        }
-    //    }
     
     //    var writeAReviewButton: some View {
     //        Group {

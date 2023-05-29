@@ -39,6 +39,13 @@ struct Constants {
     static let scaleToFillTitle = "Fill"
     static let scaleToFitTag = "scaleToFit"
     static let scaleToFillTag = "scaleToFill"
+    static let submitFeedback = "Submit Feedback"
+    static let emailAddress = "eli@elihartnett.com"
+    static let meetingMateFeedback = "MeetingMate Feedback"
+    static let videoSettings = "Video Settings"
+    static let audioSettings = "Audio Settings"
+    static let scale = "Scale"
+    static let version = "Version"
     
     static let audioManagerBufferAccessQueue = "com.MeetingMate.AudioManagerBufferAccessQueue"
     static let audioManagerPassthroughAudioQueue = "com.MeetingMate.AudioManagerPassthroughAudioQueue"

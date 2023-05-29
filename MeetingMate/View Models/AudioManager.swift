@@ -51,9 +51,6 @@ class AudioManager: Errorable {
         else {
             unmutePlayerNode()
         }
-        
-        setupCaptureSession()
-        setupPassthroughAudio()
     }
     
     func checkPermissions() {
