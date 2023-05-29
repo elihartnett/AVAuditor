@@ -82,7 +82,6 @@ class AudioManager: Errorable {
             self.audioInputOptions = AVAuditorModel.getAvailableDevices(mediaType: .audio)
             self.selectedAudioInputDeviceID = Constants.noneTag
             self.fftMagnitudes = Array(repeating: Float(0), count: Constants.audioBarCount)
-            self.permissionDenied = false
             self.playerNodeMuted = true
             self.isRecording = false
             
@@ -94,7 +93,9 @@ class AudioManager: Errorable {
             self.playerNodeMutedBackup = true
             
             self.playerNode.reset()
-            self.playerNode.removeTap(onBus: 0)
+            if !permissionDenied {
+                self.playerNode.removeTap(onBus: 0)
+            }
             self.audioEngine.reset()
         }
     }

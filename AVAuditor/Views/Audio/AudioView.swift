@@ -26,6 +26,7 @@ struct AudioView: View {
                             .tag(audioInputOption.uniqueID)
                     }
                 }
+                
             }
             .onChange(of: manager.selectedAudioInputDeviceID) { _ in
                 manager.setSelectedAudioInputDevice()
