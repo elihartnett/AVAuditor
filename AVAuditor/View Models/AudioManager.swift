@@ -1,6 +1,6 @@
 //
 //  AudioManager.swift
-//  MeetingMate
+// AVAuditor
 //
 //  Created by Eli Hartnett on 4/16/23.
 //
@@ -42,7 +42,7 @@ class AudioManager: Errorable {
     
     override init() {
         super.init()
-        audioInputOptions = MeetingMateModel.getAvailableDevices(mediaType: .audio)
+        audioInputOptions = AVAuditorModel.getAvailableDevices(mediaType: .audio)
         checkPermissions()
         
         if playerNodeMuted {
@@ -79,7 +79,7 @@ class AudioManager: Errorable {
             guard let self else { return }
             
             self.errorMessage = Constants.emptyString
-            self.audioInputOptions = MeetingMateModel.getAvailableDevices(mediaType: .audio)
+            self.audioInputOptions = AVAuditorModel.getAvailableDevices(mediaType: .audio)
             self.selectedAudioInputDeviceID = Constants.noneTag
             self.fftMagnitudes = Array(repeating: Float(0), count: Constants.audioBarCount)
             self.permissionDenied = false
@@ -108,7 +108,7 @@ class AudioManager: Errorable {
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
             
-            self.audioInputOptions = MeetingMateModel.getAvailableDevices(mediaType: .audio)
+            self.audioInputOptions = AVAuditorModel.getAvailableDevices(mediaType: .audio)
         }
         captureDevice = audioInputOptions?.first { $0.uniqueID == selectedAudioInputDeviceID }
         

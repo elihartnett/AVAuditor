@@ -17,13 +17,13 @@
 		62DB82272A06916200F5EE5D /* PermissionDeniedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62DB82262A06916200F5EE5D /* PermissionDeniedView.swift */; };
 		62DB822A2A07104100F5EE5D /* Ext+Bundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62DB82292A07104100F5EE5D /* Ext+Bundle.swift */; };
 		62DB824B2A09C9F600F5EE5D /* AudioVisualizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62DB824A2A09C9F600F5EE5D /* AudioVisualizer.swift */; };
-		62EBF7B129EB90A9001F906E /* MeetingMate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62EBF7B029EB90A9001F906E /* MeetingMate.swift */; };
+		62EBF7B129EB90A9001F906E /* AVAuditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62EBF7B029EB90A9001F906E /* AVAuditor.swift */; };
 		62EBF7B329EB90A9001F906E /* Home.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62EBF7B229EB90A9001F906E /* Home.swift */; };
 		62EBF7B529EB90AA001F906E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 62EBF7B429EB90AA001F906E /* Assets.xcassets */; };
 		62EBF7B829EB90AA001F906E /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 62EBF7B729EB90AA001F906E /* Preview Assets.xcassets */; };
 		62EBF7C429EC7CAE001F906E /* VideoInputPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62EBF7C329EC7CAE001F906E /* VideoInputPreview.swift */; };
 		62EBF7C629EC824F001F906E /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62EBF7C529EC824F001F906E /* AudioManager.swift */; };
-		62EBF7C829EC88F9001F906E /* MeetingMateModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62EBF7C729EC88F9001F906E /* MeetingMateModel.swift */; };
+		62EBF7C829EC88F9001F906E /* AVAuditorModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62EBF7C729EC88F9001F906E /* AVAuditorModel.swift */; };
 		62EE720629EC966A00EE629F /* VideoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62EE720529EC966A00EE629F /* VideoView.swift */; };
 		62EE720829EC967200EE629F /* AudioView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62EE720729EC967200EE629F /* AudioView.swift */; };
 		62EE720A29EC9F1C00EE629F /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62EE720929EC9F1C00EE629F /* Constants.swift */; };
@@ -41,15 +41,15 @@
 		62DB82262A06916200F5EE5D /* PermissionDeniedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionDeniedView.swift; sourceTree = "<group>"; };
 		62DB82292A07104100F5EE5D /* Ext+Bundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Ext+Bundle.swift"; sourceTree = "<group>"; };
 		62DB824A2A09C9F600F5EE5D /* AudioVisualizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioVisualizer.swift; sourceTree = "<group>"; };
-		62EBF7AD29EB90A9001F906E /* MeetingMate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MeetingMate.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		62EBF7B029EB90A9001F906E /* MeetingMate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingMate.swift; sourceTree = "<group>"; };
+		62EBF7AD29EB90A9001F906E /* AVAuditor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AVAuditor.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		62EBF7B029EB90A9001F906E /* AVAuditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVAuditor.swift; sourceTree = "<group>"; };
 		62EBF7B229EB90A9001F906E /* Home.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Home.swift; sourceTree = "<group>"; };
 		62EBF7B429EB90AA001F906E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		62EBF7B729EB90AA001F906E /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		62EBF7B929EB90AA001F906E /* MeetingMate.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MeetingMate.entitlements; sourceTree = "<group>"; };
 		62EBF7C329EC7CAE001F906E /* VideoInputPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoInputPreview.swift; sourceTree = "<group>"; };
 		62EBF7C529EC824F001F906E /* AudioManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioManager.swift; sourceTree = "<group>"; };
-		62EBF7C729EC88F9001F906E /* MeetingMateModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingMateModel.swift; sourceTree = "<group>"; };
+		62EBF7C729EC88F9001F906E /* AVAuditorModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVAuditorModel.swift; sourceTree = "<group>"; };
 		62EE720529EC966A00EE629F /* VideoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoView.swift; sourceTree = "<group>"; };
 		62EE720729EC967200EE629F /* AudioView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioView.swift; sourceTree = "<group>"; };
 		62EE720929EC9F1C00EE629F /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
@@ -115,7 +115,7 @@
 		62EBF7A429EB90A9001F906E = {
 			isa = PBXGroup;
 			children = (
-				62EBF7AF29EB90A9001F906E /* MeetingMate */,
+				62EBF7AF29EB90A9001F906E /* AVAuditor */,
 				62EBF7AE29EB90A9001F906E /* Products */,
 			);
 			sourceTree = "<group>";
@@ -123,15 +123,15 @@
 		62EBF7AE29EB90A9001F906E /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				62EBF7AD29EB90A9001F906E /* MeetingMate.app */,
+				62EBF7AD29EB90A9001F906E /* AVAuditor.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		62EBF7AF29EB90A9001F906E /* MeetingMate */ = {
+		62EBF7AF29EB90A9001F906E /* AVAuditor */ = {
 			isa = PBXGroup;
 			children = (
-				62EBF7B029EB90A9001F906E /* MeetingMate.swift */,
+				62EBF7B029EB90A9001F906E /* AVAuditor.swift */,
 				62EBF7BF29EB92B4001F906E /* Views */,
 				62DB82262A06916200F5EE5D /* PermissionDeniedView.swift */,
 				62EBF7C029EB92BA001F906E /* View Models */,
@@ -141,7 +141,7 @@
 				62EBF7B929EB90AA001F906E /* MeetingMate.entitlements */,
 				62EBF7B629EB90AA001F906E /* Preview Content */,
 			);
-			path = MeetingMate;
+			path = AVAuditor;
 			sourceTree = "<group>";
 		};
 		62EBF7B629EB90AA001F906E /* Preview Content */ = {
@@ -166,7 +166,7 @@
 		62EBF7C029EB92BA001F906E /* View Models */ = {
 			isa = PBXGroup;
 			children = (
-				62EBF7C729EC88F9001F906E /* MeetingMateModel.swift */,
+				62EBF7C729EC88F9001F906E /* AVAuditorModel.swift */,
 				620EB83B29F7515100745221 /* VideoManager.swift */,
 				62EBF7C529EC824F001F906E /* AudioManager.swift */,
 			);
@@ -187,9 +187,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		62EBF7AC29EB90A9001F906E /* MeetingMate */ = {
+		62EBF7AC29EB90A9001F906E /* AVAuditor */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 62EBF7BC29EB90AA001F906E /* Build configuration list for PBXNativeTarget "MeetingMate" */;
+			buildConfigurationList = 62EBF7BC29EB90AA001F906E /* Build configuration list for PBXNativeTarget "AVAuditor" */;
 			buildPhases = (
 				62DB82282A06E78500F5EE5D /* Run Swiftlint */,
 				62EBF7A929EB90A9001F906E /* Sources */,
@@ -200,9 +200,9 @@
 			);
 			dependencies = (
 			);
-			name = MeetingMate;
+			name = AVAuditor;
 			productName = MeetingMate;
-			productReference = 62EBF7AD29EB90A9001F906E /* MeetingMate.app */;
+			productReference = 62EBF7AD29EB90A9001F906E /* AVAuditor.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -220,7 +220,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 62EBF7A829EB90A9001F906E /* Build configuration list for PBXProject "MeetingMate" */;
+			buildConfigurationList = 62EBF7A829EB90A9001F906E /* Build configuration list for PBXProject "AVAuditor" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -233,7 +233,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				62EBF7AC29EB90A9001F906E /* MeetingMate */,
+				62EBF7AC29EB90A9001F906E /* AVAuditor */,
 			);
 		};
 /* End PBXProject section */
@@ -282,7 +282,7 @@
 			files = (
 				62EE720629EC966A00EE629F /* VideoView.swift in Sources */,
 				62DB822A2A07104100F5EE5D /* Ext+Bundle.swift in Sources */,
-				62EBF7C829EC88F9001F906E /* MeetingMateModel.swift in Sources */,
+				62EBF7C829EC88F9001F906E /* AVAuditorModel.swift in Sources */,
 				62DB82272A06916200F5EE5D /* PermissionDeniedView.swift in Sources */,
 				62EBF7C429EC7CAE001F906E /* VideoInputPreview.swift in Sources */,
 				62DB824B2A09C9F600F5EE5D /* AudioVisualizer.swift in Sources */,
@@ -290,7 +290,7 @@
 				62EBF7B329EB90A9001F906E /* Home.swift in Sources */,
 				62EBF7C629EC824F001F906E /* AudioManager.swift in Sources */,
 				62DB82232A0681C200F5EE5D /* Errorable.swift in Sources */,
-				62EBF7B129EB90A9001F906E /* MeetingMate.swift in Sources */,
+				62EBF7B129EB90A9001F906E /* AVAuditor.swift in Sources */,
 				62EE720829EC967200EE629F /* AudioView.swift in Sources */,
 				620EB83C29F7515100745221 /* VideoManager.swift in Sources */,
 				62EE720A29EC9F1C00EE629F /* Constants.swift in Sources */,
@@ -438,7 +438,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 0.0.1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.elihartnett.MeetingMate;
+				PRODUCT_BUNDLE_IDENTIFIER = com.elihartnett.AVAuditor;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -468,7 +468,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 0.0.1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.elihartnett.MeetingMate;
+				PRODUCT_BUNDLE_IDENTIFIER = com.elihartnett.AVAuditor;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -478,7 +478,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		62EBF7A829EB90A9001F906E /* Build configuration list for PBXProject "MeetingMate" */ = {
+		62EBF7A829EB90A9001F906E /* Build configuration list for PBXProject "AVAuditor" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				62EBF7BA29EB90AA001F906E /* Debug */,
@@ -487,7 +487,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		62EBF7BC29EB90AA001F906E /* Build configuration list for PBXNativeTarget "MeetingMate" */ = {
+		62EBF7BC29EB90AA001F906E /* Build configuration list for PBXNativeTarget "AVAuditor" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				62EBF7BD29EB90AA001F906E /* Debug */,

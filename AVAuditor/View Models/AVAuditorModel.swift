@@ -1,6 +1,6 @@
 //
-//  MeetingMateModel.swift
-//  MeetingMate
+//  AVAuditorModel.swift
+// AVAuditor
 //
 //  Created by Eli Hartnett on 4/16/23.
 //
@@ -11,7 +11,7 @@ import Foundation
 import IOKit
 import SwiftUI
 
-class MeetingMateModel: ObservableObject {
+class AVAuditorModel: ObservableObject {
     
     @Published var navigationPath = [NavigableViews]()
 

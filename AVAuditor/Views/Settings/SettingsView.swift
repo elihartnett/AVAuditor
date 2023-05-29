@@ -1,6 +1,6 @@
 //
 //  SettingsView.swift
-//  MeetingMate
+// AVAuditor
 //
 //  Created by Eli Hartnett on 5/6/23.
 //
@@ -11,7 +11,7 @@ struct SettingsView: View {
     
     @Environment(\.openURL) private var openURL
     
-    @EnvironmentObject var meetingMateModel: MeetingMateModel
+    @EnvironmentObject var avAuditorModel: AVAuditorModel
     
     @ObservedObject var videoManager: VideoManager
     @ObservedObject var audioManager: AudioManager
@@ -34,8 +34,8 @@ struct SettingsView: View {
             
             Button {
                 let emailAddress = Constants.emailAddress
-                let subject = Constants.meetingMateFeedback
-                let bodyText = meetingMateModel.getDeviceInformation()
+                let subject = Constants.AVAuditorFeedback
+                let bodyText = avAuditorModel.getDeviceInformation()
                 if let url = URL(string: "mailto:\(emailAddress)?subject=\(subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&body=\(bodyText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")") {
                     NSWorkspace.shared.open(url)
                 } else {

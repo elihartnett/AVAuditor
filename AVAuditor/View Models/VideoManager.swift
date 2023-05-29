@@ -1,6 +1,6 @@
 //
 //  VideoManager.swift
-//  MeetingMate
+// AVAuditor
 //
 //  Created by Eli Hartnett on 4/24/23.
 //
@@ -21,7 +21,7 @@ class VideoManager: Errorable {
 
     override init() {
         super.init()
-        videoInputOptions = MeetingMateModel.getAvailableDevices(mediaType: .video)
+        videoInputOptions = AVAuditorModel.getAvailableDevices(mediaType: .video)
         checkPermissions()
     }
 
@@ -43,7 +43,7 @@ class VideoManager: Errorable {
     }
 
     func resetVideoManager() {
-        videoInputOptions = MeetingMateModel.getAvailableDevices(mediaType: .video)
+        videoInputOptions = AVAuditorModel.getAvailableDevices(mediaType: .video)
         selectedVideoInputDeviceID = Constants.noneTag
         captureDevice = nil
         captureSession?.stopRunning()
@@ -51,7 +51,7 @@ class VideoManager: Errorable {
     }
 
     func setSelectedVideoInputDevice() {
-        videoInputOptions = MeetingMateModel.getAvailableDevices(mediaType: .video)
+        videoInputOptions = AVAuditorModel.getAvailableDevices(mediaType: .video)
 
         captureDevice = videoInputOptions?.first { $0.uniqueID == selectedVideoInputDeviceID }
         

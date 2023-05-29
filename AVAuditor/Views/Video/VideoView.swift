@@ -1,6 +1,6 @@
 //
 //  VideoView.swift
-//  MeetingMate
+// AVAuditor
 //
 //  Created by Eli Hartnett on 4/16/23.
 //
@@ -9,7 +9,7 @@ import SwiftUI
 
 struct VideoView: View {
 
-    @EnvironmentObject var meetingMateModel: MeetingMateModel
+    @EnvironmentObject var avAuditorModel: AVAuditorModel
     
     @ObservedObject var manager: VideoManager
 
@@ -39,7 +39,7 @@ struct VideoView: View {
                         .controlSize(.large)
 
                     VideoInputPreview(captureSession: $manager.captureSession, videoGravity: $manager.videoGravity)
-                        .frame(height: meetingMateModel.navigationPath.contains(NavigableViews.settings) ? 0 : Constants.componentHeight)
+                        .frame(height: avAuditorModel.navigationPath.contains(NavigableViews.settings) ? 0 : Constants.componentHeight)
                         .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
                         .background(Material.ultraThick)
                         .cornerRadius(Constants.componentCornerRadius)

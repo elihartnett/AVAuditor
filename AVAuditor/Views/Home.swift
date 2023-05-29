@@ -1,6 +1,6 @@
 //
 //  Home.swift
-//  MeetingMate
+// AVAuditor
 //
 //  Created by Eli Hartnett on 4/15/23.
 //
@@ -10,7 +10,7 @@ import SwiftUI
 
 struct Home: View {
 
-    @EnvironmentObject private var model: MeetingMateModel
+    @EnvironmentObject private var model: AVAuditorModel
 
     var body: some View {
 
@@ -59,6 +59,6 @@ struct Home: View {
 struct Home_Previews: PreviewProvider {
     static var previews: some View {
         Home()
-            .environmentObject(MeetingMateModel())
+            .environmentObject(AVAuditorModel())
     }
 }

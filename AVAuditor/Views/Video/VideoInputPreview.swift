@@ -1,6 +1,6 @@
 //
 //  SelectedVideoInputMonitor.swift
-//  MeetingMate
+// AVAuditor
 //
 //  Created by Eli Hartnett on 4/16/23.
 //

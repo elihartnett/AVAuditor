@@ -1,6 +1,6 @@
 //
 //  Constants.swift
-//  MeetingMate
+// AVAuditor
 //
 //  Created by Eli Hartnett on 4/16/23.
 //
@@ -9,10 +9,10 @@ import Foundation
 import SwiftUI
 
 struct Constants {
-    static let meetingMateIconName = "person.and.background.dotted"
+    static let AVAuditorIconName = "person.and.background.dotted"
     static let settingsIconName = "gearshape"
     static let recordingFileName = "recording.m4a"
-    static let audioQueueName = "MeetingMateAudioManagerQueue"
+    static let audioQueueName = "AVAuditorAudioManagerQueue"
     static let CADefaultDeviceAggregate = "CADefaultDeviceAggregate"
 
     static let componentHeight: CGFloat = 200
@@ -41,14 +41,14 @@ struct Constants {
     static let scaleToFillTag = "scaleToFill"
     static let submitFeedback = "Submit Feedback"
     static let emailAddress = "eli@elihartnett.com"
-    static let meetingMateFeedback = "MeetingMate Feedback"
+    static let AVAuditorFeedback = "AVAuditor Feedback"
     static let videoSettings = "Video Settings"
     static let audioSettings = "Audio Settings"
     static let scale = "Scale"
     static let version = "Version"
     
-    static let audioManagerBufferAccessQueue = "com.MeetingMate.AudioManagerBufferAccessQueue"
-    static let audioManagerPassthroughAudioQueue = "com.MeetingMate.AudioManagerPassthroughAudioQueue"
+    static let audioManagerBufferAccessQueue = "com.AVAuditor.AudioManagerBufferAccessQueue"
+    static let audioManagerPassthroughAudioQueue = "com.AVAuditor.AudioManagerPassthroughAudioQueue"
 
     static let error = "Error"
     static let errorRecord = "Error: Failed to record"
