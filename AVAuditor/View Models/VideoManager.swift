@@ -48,6 +48,7 @@ class VideoManager: Errorable {
         captureDevice = nil
         captureSession?.stopRunning()
         captureSession = nil
+        setErrorMessage(error: Constants.emptyString)
     }
 
     func setSelectedVideoInputDevice() {

@@ -9,4 +9,12 @@ import Foundation
 
 class Errorable: NSObject, ObservableObject {
     @Published var errorMessage = Constants.emptyString
+    
+    func setErrorMessage(error: String) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            
+            self.errorMessage = error
+        }
+    }
 }

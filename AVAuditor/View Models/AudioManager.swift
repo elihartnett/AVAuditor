@@ -57,20 +57,22 @@ class AudioManager: Errorable {
         if AVCaptureDevice.authorizationStatus(for: .audio) ==  .authorized {
             permissionDenied = false
         } else {
-            AVCaptureDevice.requestAccess(for: .audio, completionHandler: { [weak self] granted in
-                guard let self else { return }
-                
-                if granted {
-                    self.permissionDenied = false
-                } else {
-                    self.permissionDenied = true
-                    DispatchQueue.main.async { [weak self] in
-                        guard let self else { return }
-                        
-                        self.resetAudioManager()
+            DispatchQueue.main.async {
+                AVCaptureDevice.requestAccess(for: .audio, completionHandler: { [weak self] granted in
+                    guard let self else { return }
+                    
+                    if granted {
+                        self.permissionDenied = false
+                    } else {
+                        self.permissionDenied = true
+                        DispatchQueue.main.async { [weak self] in
+                            guard let self else { return }
+                            
+                            self.resetAudioManager()
+                        }
                     }
-                }
-            })
+                })
+            }
         }
     }
     
@@ -331,14 +333,6 @@ class AudioManager: Errorable {
             guard let self else { return }
             
             self.playerNodeMuted = false
-        }
-    }
-    
-    func setErrorMessage(error: String) {
-        DispatchQueue.main.async { [weak self] in
-            guard let self else { return }
-            
-            self.errorMessage = error
         }
     }
 }

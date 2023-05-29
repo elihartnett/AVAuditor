@@ -18,7 +18,6 @@ class AVAuditorModel: ObservableObject {
     @Published var videoManager: VideoManager
     @Published var audioManager: AudioManager
 
-    @Published var showError = false
     @Published var errorMessage = Constants.emptyString
     private var subscriptions: Set<AnyCancellable> = []
 
@@ -27,16 +26,12 @@ class AVAuditorModel: ObservableObject {
         self.audioManager = AudioManager()
 
         videoManager.$errorMessage.sink { [weak self] message in
-            guard !message.isEmpty else { return }
             self?.errorMessage = message
-            self?.showError = true
         }
         .store(in: &subscriptions)
 
         audioManager.$errorMessage.sink { [weak self] message in
-            guard !message.isEmpty else { return }
             self?.errorMessage = message
-            self?.showError = true
         }
         .store(in: &subscriptions)
         

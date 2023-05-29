@@ -28,9 +28,9 @@ struct Home: View {
 
                 HStack {
                     Text(model.errorMessage)
-                        .opacity(model.showError ? Constants.wholeMultiplier : Constants.zeroMultiplier)
+                        .opacity(model.errorMessage == Constants.emptyString ? Constants.zeroMultiplier : Constants.wholeMultiplier)
                         .foregroundColor(.red)
-                        .animation(.default, value: model.showError)
+                        .animation(.default, value: model.errorMessage)
 
                     Spacer()
 
