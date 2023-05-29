@@ -16,6 +16,8 @@ struct SettingsView: View {
     @ObservedObject var videoManager: VideoManager
     @ObservedObject var audioManager: AudioManager
     
+    @State var errorMessage = Constants.emptyString
+    
     var body: some View {
         
         VStack(alignment: .leading) {
@@ -37,8 +39,7 @@ struct SettingsView: View {
                 if let url = URL(string: "mailto:\(emailAddress)?subject=\(subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&body=\(bodyText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")") {
                     NSWorkspace.shared.open(url)
                 } else {
-                    #warning("Remove prints")
-                    print("error: \(Constants.errorCreateEmail)")
+                    errorMessage = Constants.errorCreateEmail
                 }
             } label: {
                 Text(Constants.submitFeedback)
@@ -48,6 +49,11 @@ struct SettingsView: View {
                 NSApplication.shared.terminate(nil)
             }
             .keyboardShortcut(Constants.quitShortcut)
+            
+            if errorMessage != Constants.emptyString {
+                Text(errorMessage)
+                    .foregroundColor(.red)
+            }
         }
     }
     

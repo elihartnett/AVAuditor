@@ -62,7 +62,7 @@ struct Constants {
     static let errorGetCaptureSession = "Error: Failed to get session"
     static let errorGetCaptureDevice = "Error: Failed to get capture device"
     static let errorGetRecorder = "Error: Failed to get recorder"
-    static let errorCreateEmail = "Error: Failed to create email"
+    static let errorCreateEmail = "Error: Failed to create email. Please manually email \(Constants.emailAddress)"
     static let errorCreateAudioFile = "Error: Failed to read recording"
     static let errorTransformData = "Error: Failed to transform data"
     static let errorGetFFTSetup = "Error: Failed to get setup"
