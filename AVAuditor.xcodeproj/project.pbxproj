@@ -36,6 +36,7 @@
 		620EB83629F41FBC00745221 /* MeetingMateIcon.vectornator */ = {isa = PBXFileReference; lastKnownFileType = file; path = MeetingMateIcon.vectornator; sourceTree = "<group>"; };
 		620EB83729F41FBC00745221 /* MeetingMateIconWBG.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MeetingMateIconWBG.png; sourceTree = "<group>"; };
 		620EB83B29F7515100745221 /* VideoManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoManager.swift; sourceTree = "<group>"; };
+		627857A62A2552200040499F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		62DB82222A0681C200F5EE5D /* Errorable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Errorable.swift; sourceTree = "<group>"; };
 		62DB82242A068BFC00F5EE5D /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		62DB82262A06916200F5EE5D /* PermissionDeniedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionDeniedView.swift; sourceTree = "<group>"; };
@@ -131,6 +132,7 @@
 		62EBF7AF29EB90A9001F906E /* AVAuditor */ = {
 			isa = PBXGroup;
 			children = (
+				627857A62A2552200040499F /* Info.plist */,
 				62EBF7B029EB90A9001F906E /* AVAuditor.swift */,
 				62EBF7BF29EB92B4001F906E /* Views */,
 				62DB82262A06916200F5EE5D /* PermissionDeniedView.swift */,
@@ -429,7 +431,7 @@
 				ENABLE_HARDENED_RUNTIME = NO;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_FILE = AVAuditor/Info.plist;
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Providing camera access enables camera previews";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Providing microphone access enables audio previews";
@@ -460,7 +462,7 @@
 				ENABLE_HARDENED_RUNTIME = NO;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_FILE = AVAuditor/Info.plist;
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Providing camera access enables camera previews";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Providing microphone access enables audio previews";
