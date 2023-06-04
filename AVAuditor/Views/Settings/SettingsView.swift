@@ -43,10 +43,14 @@ struct SettingsView: View {
                 }
             } label: {
                 Text(Constants.submitFeedback)
+                    .foregroundColor(.primary)
             }
             
-            Button(Constants.quit) {
+            Button {
                 NSApplication.shared.terminate(nil)
+            } label: {
+                Text(Constants.quit)
+                    .foregroundColor(.primary)
             }
             .keyboardShortcut(Constants.quitShortcut)
             

@@ -53,6 +53,7 @@ struct Home: View {
                 }
             }
         }
+        .focusable(false)
     }
 }
 
