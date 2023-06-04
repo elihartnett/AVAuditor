@@ -214,14 +214,7 @@ class AudioManager: Errorable {
             return
         }
         
-        if FileManager.default.fileExists(atPath: recordingURL.path()) {
-            do {
-                try FileManager.default.removeItem(at: recordingURL)
-            } catch {
-                setErrorMessage(error: Constants.errorRecord)
-                return
-            }
-        }
+        deleteRecording()
         
         audioRecorder.startRecording(to: recordingURL, outputFileType: .m4a, recordingDelegate: self)
     }
@@ -257,6 +250,8 @@ class AudioManager: Errorable {
                     }
                     self.isRecording = false
                 }
+                
+                self.deleteRecording()
             }
             
             unmutePlayerNode()
@@ -333,6 +328,17 @@ class AudioManager: Errorable {
             guard let self else { return }
             
             self.playerNodeMuted = false
+        }
+    }
+    
+    func deleteRecording() {
+        if FileManager.default.fileExists(atPath: recordingURL.path()) {
+            do {
+                try FileManager.default.removeItem(at: recordingURL)
+            } catch {
+                setErrorMessage(error: Constants.errorRecord)
+                return
+            }
         }
     }
 }
