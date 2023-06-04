@@ -68,4 +68,7 @@ struct Constants {
     static let errorGetFFTSetup = "Error: Failed to get setup"
     static let errorGetAudioFormat = "Error: Failed to get audio format"
     static let errorPlayAudio = "Error: Failed to play audio"
+    
+    static let unmutedIcon = "speaker"
+    static let mutedIcon = "speaker.slash"
 }

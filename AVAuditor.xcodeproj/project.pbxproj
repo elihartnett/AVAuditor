@@ -148,7 +148,6 @@
 				6234BF252A2C1F5800C9AC99 /* GoogleService-Info.plist */,
 				62EBF7B029EB90A9001F906E /* AVAuditor.swift */,
 				62EBF7BF29EB92B4001F906E /* Views */,
-				62DB82262A06916200F5EE5D /* PermissionDeniedView.swift */,
 				62EBF7C029EB92BA001F906E /* View Models */,
 				62DB82212A0681AB00F5EE5D /* Models */,
 				62EBF7C229EB92D5001F906E /* Helpers */,
@@ -174,6 +173,7 @@
 				620EB83D29F754CD00745221 /* Video */,
 				620EB83E29F754D800745221 /* Audio */,
 				623FA34329FF0E0A00203241 /* Settings */,
+				62DB82262A06916200F5EE5D /* PermissionDeniedView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";

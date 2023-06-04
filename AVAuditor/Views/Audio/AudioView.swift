@@ -58,7 +58,8 @@ struct AudioView: View {
                                 }
                             }
                         } label: {
-                            Image(systemName: manager.playerNodeMuted ? "speaker.slash" : "speaker")
+                            Image(systemName: manager.playerNodeMuted ? Constants.mutedIcon : Constants.unmutedIcon)
+                                .foregroundColor(.primary)
                         }
                         .disabled(manager.isRecording)
                         .frame(width: Constants.componentDetailHeight, height: Constants.componentDetailHeight)
