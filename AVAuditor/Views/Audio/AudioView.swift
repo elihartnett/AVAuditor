@@ -34,12 +34,19 @@ struct AudioView: View {
             
             if manager.captureDevice != nil {
                 HStack {
-                    AudioVisualizer(manager: manager)
-                        .frame(height: Constants.componentDetailHeight)
+                    VStack(spacing: 0) {
+                        let visualizer = AudioVisualizer(manager: manager)
+                        
+                        visualizer
+                        visualizer
+                            .scaleEffect(x: 1, y: -1) // Mirroring and flipping over the x-axis
+                    }
+                    .frame(height: Constants.componentDetailHeight * 2)
                     
                     VStack {
-                        AudioRecorderView(audioManager: manager)
-                            .frame(width: Constants.componentDetailHeight, height: Constants.componentDetailHeight)
+                        #warning("Temporarily removed. Can bring back if added to video view as well.")
+                        //                        AudioRecorderView(audioManager: manager)
+                        //                            .frame(width: Constants.componentDetailHeight, height: Constants.componentDetailHeight)
                         
                         Button {
                             withAnimation {

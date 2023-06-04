@@ -17,7 +17,7 @@ struct AudioVisualizer: View {
 
     @State var data = [Float]()
     
-    private let magnitudeMin: Float = 0.3
+    private let magnitudeMin: Float = 1
     private let magnitudeMax: Float = 5
 
     var body: some View {
