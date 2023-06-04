@@ -434,7 +434,7 @@ extension AudioManager: AVCaptureAudioDataOutputSampleBufferDelegate {
         var error: NSError?
         converter.convert(to: newBuffer, error: &error, withInputFrom: inputBlock)
         
-        if let error = error {
+        if error != nil {
             setErrorMessage(error: Constants.errorConvertAudio)
             return nil
         }

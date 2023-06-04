@@ -8,13 +8,21 @@
 // Reset video permission - tccutil reset Camera com.elihartnett.AVAuditor
 // Reset audio permission - tccutil reset Microphone com.elihartnett.AVAuditor
 
-#warning("Analytics?")
 
 import SwiftUI
+import Firebase
+
+class AppDelegate: NSObject, NSApplicationDelegate {
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        FirebaseApp.configure()
+        Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(true)
+    }
+}
 
 @main
 struct AVAuditor: App {
 
+    @NSApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @StateObject private var model = AVAuditorModel()
 
     var body: some Scene {
