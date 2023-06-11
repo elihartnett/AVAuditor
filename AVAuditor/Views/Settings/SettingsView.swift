@@ -32,19 +32,9 @@ struct SettingsView: View {
             
             Text("\(Constants.version) \(Bundle.main.fullVersion)")
             
-            Button {
-                let emailAddress = Constants.emailAddress
-                let subject = Constants.AVAuditorFeedback
-                let bodyText = avAuditorModel.getDeviceInformation()
-                if let url = URL(string: "mailto:\(emailAddress)?subject=\(subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&body=\(bodyText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")") {
-                    NSWorkspace.shared.open(url)
-                } else {
-                    errorMessage = Constants.errorCreateEmail
-                }
-            } label: {
-                Text(Constants.submitFeedback)
-                    .foregroundColor(.primary)
-            }
+            submitFeedbackButton
+            
+            writeAReviewButton
             
             Button {
                 NSApplication.shared.terminate(nil)
@@ -107,17 +97,33 @@ struct SettingsView: View {
         }
     }
     
-    //    var writeAReviewButton: some View {
-    //        Group {
-    //            if let url = URL(string: "https://apps.apple.com/app/id\(Constants.appID)?action=write-review") {
-    //                Button {
-    //                    openURL(url)
-    //                } label: {
-    //                    Text("Write A Review")
-    //                }
-    //            }
-    //        }
-    //    }
+    var submitFeedbackButton: some View {
+        Button {
+            let emailAddress = Constants.emailAddress
+            let subject = Constants.AVAuditorFeedback
+            let bodyText = avAuditorModel.getDeviceInformation()
+            if let url = URL(string: "mailto:\(emailAddress)?subject=\(subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&body=\(bodyText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")") {
+                NSWorkspace.shared.open(url)
+            } else {
+                errorMessage = Constants.errorCreateEmail
+            }
+        } label: {
+            Text(Constants.submitFeedback)
+                .foregroundColor(.primary)
+        }
+    }
+    
+    var writeAReviewButton: some View {
+        Group {
+            if let url = URL(string: "https://apps.apple.com/app/id\(Constants.appID)?action=write-review") {
+                Button {
+                    openURL(url)
+                } label: {
+                    Text(Constants.writeAReviewLabel)
+                }
+            }
+        }
+    }
 }
 
 struct SettingsView_Previews: PreviewProvider {

@@ -10,6 +10,7 @@ import SwiftUI
 
 struct Constants {
     static let AVAuditorIconName = "person.and.background.dotted"
+    static let appID = "6449680815"
     static let settingsIconName = "gearshape"
     static let recordingFileName = "recording.m4a"
     static let audioQueueName = "AVAuditorAudioManagerQueue"
@@ -44,6 +45,7 @@ struct Constants {
     static let AVAuditorFeedback = "AVAuditor Feedback"
     static let videoSettings = "Video Settings"
     static let audioSettings = "Audio Settings"
+    static let writeAReviewLabel = "Write A Review"
     static let scale = "Scale"
     static let version = "Version"
     
