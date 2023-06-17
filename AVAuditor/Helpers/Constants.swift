@@ -41,7 +41,7 @@ struct Constants {
     static let scaleToFitTag = "scaleToFit"
     static let scaleToFillTag = "scaleToFill"
     static let submitFeedback = "Submit Feedback"
-    static let emailAddress = "eli@elihartnett.com"
+    static let emailAddress = "elichartnett@icloud.com"
     static let AVAuditorFeedback = "AVAuditor Feedback"
     static let videoSettings = "Video Settings"
     static let audioSettings = "Audio Settings"
