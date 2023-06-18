@@ -120,6 +120,7 @@ struct SettingsView: View {
                     openURL(url)
                 } label: {
                     Text(Constants.writeAReviewLabel)
+                        .foregroundColor(.primary)
                 }
             }
         }
