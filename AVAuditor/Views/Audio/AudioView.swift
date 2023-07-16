@@ -1,8 +1,8 @@
 //
-//  AudioView.swift
+// AudioView.swift
 // AVAuditor
 //
-//  Created by Eli Hartnett on 4/16/23.
+// Created by Eli Hartnett on 4/16/23.
 //
 
 import SwiftUI
@@ -44,9 +44,9 @@ struct AudioView: View {
                     .frame(height: Constants.componentDetailHeight * 2)
                     
                     VStack {
-                        #warning("Temporarily removed. Can bring back if added to video view as well.")
-                        //                        AudioRecorderView(audioManager: manager)
-                        //                            .frame(width: Constants.componentDetailHeight, height: Constants.componentDetailHeight)
+                        // Temporarily removed. Can bring back if added to video view as well.
+                        // AudioRecorderView(audioManager: manager)
+                        //      .frame(width: Constants.componentDetailHeight, height: Constants.componentDetailHeight)
                         
                         Button {
                             withAnimation {

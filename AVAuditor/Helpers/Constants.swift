@@ -1,8 +1,8 @@
 //
-//  Constants.swift
+// Constants.swift
 // AVAuditor
 //
-//  Created by Eli Hartnett on 4/16/23.
+// Created by Eli Hartnett on 4/16/23.
 //
 
 import Foundation
@@ -48,6 +48,8 @@ struct Constants {
     static let writeAReviewLabel = "Write A Review"
     static let scale = "Scale"
     static let version = "Version"
+    static let frequency = "Frequency"
+    static let magnitude = "Magnitude"
     
     static let audioManagerBufferAccessQueue = "com.AVAuditor.AudioManagerBufferAccessQueue"
     static let audioManagerPassthroughAudioQueue = "com.AVAuditor.AudioManagerPassthroughAudioQueue"

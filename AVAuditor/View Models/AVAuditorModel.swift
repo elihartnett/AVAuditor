@@ -1,8 +1,8 @@
 //
-//  AVAuditorModel.swift
+// AVAuditorModel.swift
 // AVAuditor
 //
-//  Created by Eli Hartnett on 4/16/23.
+// Created by Eli Hartnett on 4/16/23.
 //
 
 import AVKit
@@ -79,8 +79,7 @@ class AVAuditorModel: ObservableObject {
         Video device: \(videoDevice ?? Constants.noneTag)
         Audio device: \(audioDevice ?? Constants.noneTag)
         App Version: \(appVersion)
-        -----------------------------
-        \n
+        -----------------------------\n\n
         """
     }
 }

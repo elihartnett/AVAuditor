@@ -2,7 +2,7 @@
 // AVAuditorApp.swift
 // AVAuditor
 //
-//  Created by Eli Hartnett on 4/15/23.
+// Created by Eli Hartnett on 4/15/23.
 //
 // Menu bar app boiler plate - https://sarunw.com/posts/swiftui-menu-bar-app/
 // Reset video permission - tccutil reset Camera com.elihartnett.AVAuditor

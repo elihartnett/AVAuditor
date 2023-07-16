@@ -1,8 +1,8 @@
 //
-//  PermissionDeniedView.swift
+// PermissionDeniedView.swift
 // AVAuditor
 //
-//  Created by Eli Hartnett on 5/6/23.
+// Created by Eli Hartnett on 5/6/23.
 //
 
 import SwiftUI

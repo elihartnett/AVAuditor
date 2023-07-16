@@ -1,9 +1,9 @@
 //
-//  AudioVisualizer.swift
-//  AudioVisualizer
+// AudioVisualizer.swift
+// AudioVisualizer
 //
-//  Created by Alex Barbulescu on 2019-04-06.
-//  Copyright © 2019 alex. All rights reserved.
+// Created by Alex Barbulescu on 2019-04-06.
+// Copyright © 2019 alex. All rights reserved.
 //
 
 import Accelerate
@@ -31,8 +31,8 @@ struct AudioVisualizer: View {
                 let maxxedRatio = min(minnedRatio, Float(proxy.size.height))
                 
                 BarMark(
-                    x: .value("Frequency", String(index)),
-                    y: .value("Magnitude", maxxedRatio)
+                    x: .value(Constants.frequency, String(index)),
+                    y: .value(Constants.magnitude, maxxedRatio)
                 )
                 .foregroundStyle(.white)
             }

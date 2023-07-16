@@ -1,8 +1,8 @@
 //
-//  AudioManager.swift
+// AudioManager.swift
 // AVAuditor
 //
-//  Created by Eli Hartnett on 4/16/23.
+// Created by Eli Hartnett on 4/16/23.
 //
 
 import Foundation

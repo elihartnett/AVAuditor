@@ -1,8 +1,8 @@
 //
-//  VideoManager.swift
+// VideoManager.swift
 // AVAuditor
 //
-//  Created by Eli Hartnett on 4/24/23.
+// Created by Eli Hartnett on 4/24/23.
 //
 
 import AVKit
